@@ -376,6 +376,24 @@
     { key: 'carrosserie', label: 'Carrosserie / pare-brise (impacts)' },
   ];
 
+  /** Applique une fiche constructeur : doc technique + ajustements du plan + éléments supplémentaires. */
+  function applyPreset(state, p) {
+    const mine = (state.tech || []).filter((r) => r.custom);
+    state.tech = p.rows.map((r, i) => Object.assign({ id: 'p-' + i }, r)).concat(mine);
+    state.plan = state.plan || [];
+    for (const [pid, patch] of Object.entries(p.plan || {})) {
+      const it = state.plan.find((x) => x.id === pid);
+      if (it) Object.assign(it, patch);
+    }
+    for (const add of p.addItems || []) {
+      const ex = state.plan.find((x) => x.id === add.id);
+      if (ex) Object.assign(ex, add);
+      else state.plan.push(Object.assign({ enabled: true, custom: true }, add));
+    }
+    state.presetLabel = p.label;
+    return state;
+  }
+
   function defaultState() {
     return {
       version: 1,
@@ -391,7 +409,7 @@
 
   return {
     parseDate, toISO, today, addMonths, addDays, diffDays, uid,
-    defaultPlan, defaultState, kmPerDay, estimatedKm, lastKnownKm, lastDone,
+    defaultPlan, defaultState, applyPreset, kmPerDay, estimatedKm, lastKnownKm, lastDone,
     itemStatus, allStatuses, lastReading, monthlyCheckDue, fullCheckDue, readingPeriod, buildICS, MONTHLY_CHECKS,
   };
 });

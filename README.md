@@ -40,6 +40,16 @@ python3 -m http.server 8000
 node --test tests/core.test.js
 ```
 
+## 🚘 Renault Vel Satis 2.0 dCi 175 (fiche intégrée)
+Sur l'écran d'accueil, le bouton **« Charger la Vel Satis »** préremplit :
+- la fiche véhicule : M9R, chaîne, FAP, BVM6, équipements et défauts signalés dans l'annonce ;
+- le plan d'entretien « recommandé », plus strict que celui du constructeur : vidange tous les 10 000 km ou 1 an en huile RN0720, filtres, liquides, courroie d'accessoires, diagnostic FAP/EGR, boîte PK6, lève-vitres arrière ;
+- la doc technique : huile et capacités, références de filtres, plaquettes et disques, kit courroie, couples de serrage, pneus, batterie, xénon ;
+- l'historique connu : vidange et filtres en mai 2026 vers 189 200 km, pneus été en 2025.
+
+Les valeurs marquées « à vérifier » n'ont pas pu être confirmées par au moins une source fiable : contrôle-les avec le VIN ou sur la pièce en place.
+Pour régénérer ce fichier : `node tools/build-starter.js`.
+
 ## Ajouter une fiche constructeur
 Dans `tech-presets.js`, ajoute une entrée **avant** la fiche générique :
 ```js

@@ -1,0 +1,634 @@
+{
+ "app": "carnet-auto",
+ "exportedAt": "2026-11-14T14:44:49.622Z",
+ "state": {
+  "version": 1,
+  "vehicle": {
+   "brand": "Renault",
+   "model": "Vel Satis",
+   "name": "Renault Vel Satis",
+   "engine": "2.0 dCi 175 FAP",
+   "engineCode": "M9R",
+   "year": "2006",
+   "fuel": "diesel",
+   "gearbox": "manuelle",
+   "timing": "chaine",
+   "plate": "",
+   "firstReg": "",
+   "purchaseDate": "",
+   "purchaseKm": "195200",
+   "purchasePrice": "",
+   "owners": "",
+   "vin": "",
+   "oilSpec": "5W30 ACEA C4 RN0720 — ~6 à 7 L (à confirmer à la jauge)",
+   "tireSize": "225/55 R17",
+   "tirePressure": "≈ 2,2 / 2,0 bar (voir étiquette portière)",
+   "battery": "80–85 Ah, 740–800 A",
+   "notes": "Annonce : 2.0 dCi 173 ch (175 ch constructeur), 2006, ~195 200 km, bon état général, chaîne de distribution.\nÉquipements : xénon, sièges chauffants, 2 cartes mains-libres, feux & essuie-glaces auto, clim auto (fonctionnelle), régulateur/limiteur, radars AV/AR, Carminat, cuir beige, bois.\nFactures d'entretien disponibles → les récupérer et les saisir en « Avant achat » + photos dans Factures.\n4 pneus été changés en 2025 ; 2 pneus 4 saisons fournis.\nVidange avec tous les filtres en mai 2026, ~6 000 km avant la vente.\nCT fait avant la vente (à saisir dans le journal avec la date du PV).\nAttelage d'occasion fourni, jamais installé.\nDéfauts signalés : 2 lève-vitres arrière HS, ciel de toit qui commence à se décoller, quelques rayures."
+  },
+  "plan": [
+   {
+    "id": "ct",
+    "enabled": true,
+    "intervalKm": null,
+    "intervalMonths": 24,
+    "key": "ct",
+    "name": "Contrôle technique",
+    "category": "Administratif",
+    "difficulty": "pro",
+    "special": "ct",
+    "parts": "—",
+    "tips": "1er CT avant les 4 ans de la voiture, puis tous les 2 ans. Prendre RDV ~1 mois avant l'échéance. Avant le passage : vérifier éclairage, essuie-glaces, lave-glace, klaxon, pneus, plaquettes, voyants éteints.",
+    "kind": "check"
+   },
+   {
+    "id": "pneus-check",
+    "enabled": true,
+    "intervalKm": 5000,
+    "intervalMonths": 1,
+    "key": "pneus-check",
+    "name": "Contrôle pneus (usure + pression)",
+    "category": "Pneus",
+    "difficulty": "facile",
+    "parts": "Manomètre, jauge de profondeur (~5 €)",
+    "tips": "Pression à froid (valeurs sur l'étiquette de la portière conducteur ou trappe à carburant). Profondeur légale mini 1,6 mm (témoins d'usure), changer idéalement vers 3 mm. Chercher hernies, coupures, usure irrégulière (= géométrie).",
+    "kind": "check"
+   },
+   {
+    "id": "pneus-permut",
+    "enabled": true,
+    "intervalKm": 10000,
+    "intervalMonths": 12,
+    "key": "pneus-permut",
+    "name": "Permutation des pneus avant/arrière",
+    "category": "Pneus",
+    "difficulty": "moyen",
+    "parts": "Cric, chandelles, clé dynamométrique",
+    "tips": "Uniquement si les 4 pneus sont identiques et non directionnels (sinon même côté). Serrer les roues au couple constructeur (souvent 90–120 N·m) en étoile, re-vérifier après 50 km.",
+    "kind": "replace"
+   },
+   {
+    "id": "freins-check",
+    "enabled": true,
+    "intervalKm": 15000,
+    "intervalMonths": 12,
+    "key": "freins-check",
+    "name": "Contrôle freins (plaquettes, disques)",
+    "category": "Freinage",
+    "difficulty": "facile",
+    "parts": "Lampe torche",
+    "tips": "Regarder l'épaisseur des plaquettes à travers la jante (changer sous ~3 mm). Disque : épaisseur mini gravée sur le disque, rebord marqué = usé. Bruit métallique, vibrations au freinage = à contrôler vite.",
+    "kind": "check"
+   },
+   {
+    "id": "plaquettes-av",
+    "enabled": true,
+    "intervalKm": 40000,
+    "intervalMonths": null,
+    "key": "plaquettes-av",
+    "name": "Plaquettes de frein avant",
+    "category": "Freinage",
+    "difficulty": "moyen",
+    "parts": "Jeu de plaquettes AV (réf. selon VIN), graisse cuivre/céramique, nettoyant frein",
+    "tips": "Changer toujours par essieu (les 2 côtés). Repousser le piston, ne pas laisser déborder le bocal de liquide de frein. Rodage : freinages doux les 200 premiers km. Remplacer les disques tous les 2 jeux de plaquettes environ.",
+    "kind": "replace"
+   },
+   {
+    "id": "balais",
+    "enabled": true,
+    "intervalKm": null,
+    "intervalMonths": 12,
+    "key": "balais",
+    "name": "Balais d'essuie-glace",
+    "category": "Visibilité",
+    "difficulty": "facile",
+    "parts": "Balais AV (longueurs selon modèle) + AR",
+    "tips": "À changer dès qu'ils laissent des traces ou broutent. Idéalement à l'automne avant l'hiver.",
+    "kind": "replace"
+   },
+   {
+    "id": "eclairage",
+    "enabled": true,
+    "intervalKm": null,
+    "intervalMonths": 3,
+    "key": "eclairage",
+    "name": "Contrôle éclairage",
+    "category": "Visibilité",
+    "difficulty": "facile",
+    "parts": "Ampoules de rechange (H7/H4/W5W… selon modèle)",
+    "tips": "Feux de croisement, route, stop (se faire aider ou reflet sur une vitrine), clignotants, recul, plaque. Garder un kit d'ampoules dans la boîte à gants.",
+    "kind": "check"
+   },
+   {
+    "id": "batterie",
+    "enabled": true,
+    "intervalKm": null,
+    "intervalMonths": 12,
+    "key": "batterie",
+    "name": "Contrôle batterie 12 V",
+    "category": "Électricité",
+    "difficulty": "facile",
+    "parts": "Multimètre (~15 €)",
+    "tips": "Moteur coupé depuis quelques heures : ≥ 12,6 V = chargée, < 12,4 V = à recharger, < 12,0 V = fatiguée. Moteur tournant : 13,8–14,7 V (alternateur OK). Nettoyer les cosses (bicarbonate). Durée de vie moyenne 4–6 ans.",
+    "kind": "check"
+   },
+   {
+    "id": "filtre-habitacle",
+    "enabled": true,
+    "intervalKm": 20000,
+    "intervalMonths": 12,
+    "key": "filtre-habitacle",
+    "name": "Filtre d'habitacle (pollen)",
+    "category": "Filtres",
+    "difficulty": "facile",
+    "parts": "Filtre d'habitacle MANN CU 2149 (charbon actif : CUK 2149), 210 × 208 × 30 mm.",
+    "tips": "Souvent derrière la boîte à gants ou sous l'auvent de pare-brise. Respecter le sens de la flèche (flux d'air). 10 min, 15–25 €.",
+    "kind": "replace"
+   },
+   {
+    "id": "liquide-frein",
+    "enabled": true,
+    "intervalKm": null,
+    "intervalMonths": 24,
+    "key": "liquide-frein",
+    "name": "Purge liquide de frein",
+    "category": "Freinage",
+    "difficulty": "moyen",
+    "parts": "Liquide DOT 4 (~1 L). Purge à 2 personnes ou purgeur.",
+    "tips": "Le liquide absorbe l'humidité → perte d'efficacité. Purger dans l'ordre : roue la plus éloignée du maître-cylindre d'abord (souvent AR D, AR G, AV D, AV G). Se faire aider (pompe à la pédale) ou purgeur à dépression. Ne jamais laisser le bocal se vider.",
+    "kind": "replace"
+   },
+   {
+    "id": "clim",
+    "enabled": true,
+    "intervalKm": null,
+    "intervalMonths": 24,
+    "key": "clim",
+    "name": "Climatisation (entretien / recharge)",
+    "category": "Confort",
+    "difficulty": "pro",
+    "parts": "—",
+    "tips": "Faire tourner la clim 10 min/semaine même l'hiver (lubrifie le circuit). Recharge en garage (gaz réglementé). Mauvaise odeur → filtre habitacle + nettoyant évaporateur.",
+    "kind": "check"
+   },
+   {
+    "id": "geometrie",
+    "enabled": true,
+    "intervalKm": 30000,
+    "intervalMonths": 24,
+    "key": "geometrie",
+    "name": "Contrôle géométrie / parallélisme",
+    "category": "Pneus",
+    "difficulty": "pro",
+    "parts": "—",
+    "tips": "À faire aussi après un choc trottoir, ou si la voiture tire d'un côté / usure irrégulière des pneus. ~60–90 € en centre auto.",
+    "kind": "check"
+   },
+   {
+    "id": "vidange",
+    "enabled": true,
+    "intervalKm": 10000,
+    "intervalMonths": 12,
+    "key": "vidange",
+    "name": "Vidange huile moteur + filtre à huile",
+    "category": "Moteur",
+    "difficulty": "moyen",
+    "parts": "Huile 5W30 ACEA C4, norme Renault RN0720 (compatible FAP) — ex. Elf Evolution 900 DID 5W30, Total Quartz Ineo MC3/RCP 5W30 (vérifier « RN0720 » sur le bidon). Prévoir 7 L (capacité à confirmer, voir Doc technique). Filtre à huile MANN HU 618 x (équiv. Purflux L470). Joint de bouchon de vidange.",
+    "tips": "Moteur tiède. Bac 6 L, clé de filtre, clé dynamométrique pour le bouchon (souvent 25–35 N·m). Remplir à ~90 % de la capacité, faire tourner 1 min, attendre 5 min, compléter jusqu'au max de la jauge. Déposer l'huile usagée en déchetterie. Utiliser la norme exacte indiquée dans le carnet !",
+    "kind": "replace"
+   },
+   {
+    "id": "niveaux",
+    "enabled": true,
+    "intervalKm": 1500,
+    "intervalMonths": 1,
+    "key": "niveaux",
+    "name": "Contrôle des niveaux",
+    "category": "Moteur",
+    "difficulty": "facile",
+    "parts": "Chiffon, bidon d'huile d'appoint, lave-glace",
+    "tips": "Jauge d'huile à chaque plein ou toutes les 2 semaines : sur ce moteur à FAP, un niveau qui MONTE = gazole dans l'huile (régénérations incomplètes) → vidange anticipée + rouler sur autoroute. Liquide de refroidissement (moteur froid), liquide de frein, lave-glace.",
+    "kind": "check"
+   },
+   {
+    "id": "filtre-air",
+    "enabled": true,
+    "intervalKm": 40000,
+    "intervalMonths": 24,
+    "key": "filtre-air",
+    "name": "Filtre à air moteur",
+    "category": "Filtres",
+    "difficulty": "facile",
+    "parts": "Filtre à air — MANN C 24 123/2 (à vérifier sur l'ancien filtre). Réf. Renault vue sur 2.0 dCi 150 : 82 00 799 782.",
+    "tips": "Boîte à air avec clips ou vis. Contrôler visuellement à chaque vidange, souffler si poussiéreux. 10 min, 10–25 €.",
+    "kind": "replace"
+   },
+   {
+    "id": "refroidissement",
+    "enabled": true,
+    "intervalKm": 120000,
+    "intervalMonths": 48,
+    "key": "refroidissement",
+    "name": "Liquide de refroidissement (remplacement)",
+    "category": "Moteur",
+    "difficulty": "moyen",
+    "parts": "Liquide Renault Glacéo Type D (ou équivalent « Renault Type D »), à ne pas mélanger avec un autre type. Capacité à confirmer.",
+    "tips": "Toujours moteur FROID. Vidanger par la durite inférieure ou le robinet, rincer, remplir, purger l'air (vis de purge, chauffage à fond). Vérifier le niveau sur plusieurs jours.",
+    "kind": "replace"
+   },
+   {
+    "id": "courroie-acc",
+    "enabled": true,
+    "intervalKm": 160000,
+    "intervalMonths": 72,
+    "key": "courroie-acc",
+    "name": "Courroie d'accessoires + galets",
+    "category": "Moteur",
+    "difficulty": "moyen",
+    "parts": "Kit courroie d'accessoires + galets. Réf. vue sur 2.0 dCi 150 : Renault 77 01 476 645 / SKF VKMA 36086 (à confirmer pour le 175 : regarder la longueur 6PK… gravée sur la courroie).",
+    "tips": "Sans facture de remplacement : à changer par précaution (préconisation 160 000 km ou 6 ans). Faire une photo du passage de la courroie avant démontage. Écouter les sifflements à froid.",
+    "kind": "replace"
+   },
+   {
+    "id": "filtre-gasoil",
+    "enabled": true,
+    "intervalKm": 60000,
+    "intervalMonths": 36,
+    "key": "filtre-gasoil",
+    "name": "Filtre à gazole",
+    "category": "Filtres",
+    "difficulty": "moyen",
+    "parts": "Filtre à gazole — réf. Renault 82 00 780 962 ou 82 00 780 950 selon montage (avec ou sans connecteur de capteur d'eau : regarder le filtre en place avant de commander).",
+    "tips": "Réamorcer le circuit après remplacement (poire ou plusieurs mises du contact sans démarrer). Purger l'eau du filtre si équipé d'une vis de purge. Ne pas laisser couler de gazole sur les durites.",
+    "kind": "replace"
+   },
+   {
+    "id": "fap",
+    "enabled": true,
+    "intervalKm": null,
+    "intervalMonths": 1,
+    "key": "fap",
+    "name": "Régénération FAP (autoroute 20–30 min)",
+    "category": "Moteur",
+    "difficulty": "facile",
+    "parts": "—",
+    "tips": "Rouler au moins 20 à 30 minutes sur voie rapide/autoroute tous les 10 à 15 jours, moteur chaud. Ne pas couper le moteur pendant une régénération (ventilateur qui tourne après l'arrêt, ralenti plus haut). Nettoyant FAP en prévention possible tous les 3 000–5 000 km juste avant un trajet autoroute (il ne débouche pas un FAP déjà colmaté). Pas d'additif FAP à remplir sur ce moteur.",
+    "kind": "check"
+   },
+   {
+    "id": "chaine-check",
+    "enabled": true,
+    "intervalKm": 30000,
+    "intervalMonths": 24,
+    "key": "chaine-check",
+    "name": "Surveillance chaîne de distribution",
+    "category": "Moteur",
+    "difficulty": "pro",
+    "parts": "—",
+    "tips": "Moteur M9R à chaîne : pas de remplacement périodique. Écouter un cliquetis au démarrage à froid (chaîne allongée) → faire contrôler. Une huile non conforme ou vidangée trop tard use la chaîne : respecter la RN0720 et les 10 000 km.",
+    "kind": "check"
+   },
+   {
+    "enabled": true,
+    "custom": true,
+    "id": "diag-fap",
+    "name": "Diagnostic FAP / EGR (valise)",
+    "category": "Moteur",
+    "kind": "check",
+    "intervalKm": 10000,
+    "intervalMonths": 12,
+    "difficulty": "pro",
+    "parts": "—",
+    "tips": "À chaque révision : lecture des défauts, taux de colmatage / masse de suies du FAP, état de la vanne EGR. Possible soi-même avec une interface OBD + logiciel compatible Renault (ex. DDT4ALL / Can Clip clone), sinon garage."
+   },
+   {
+    "enabled": true,
+    "custom": true,
+    "id": "plaquettes-ar",
+    "name": "Plaquettes de frein arrière",
+    "category": "Freinage",
+    "kind": "replace",
+    "intervalKm": 60000,
+    "intervalMonths": null,
+    "difficulty": "moyen",
+    "parts": "Jeu de plaquettes AR (réf. selon VIN)",
+    "tips": "Contrôler à chaque contrôle freins. Frein de parking électrique possible selon version : vérifier la procédure (mode maintenance) avant de repousser les pistons."
+   },
+   {
+    "enabled": true,
+    "custom": true,
+    "id": "huile-bvm",
+    "name": "Vidange boîte manuelle PK6",
+    "category": "Transmission",
+    "kind": "replace",
+    "intervalKm": 120000,
+    "intervalMonths": 96,
+    "difficulty": "moyen",
+    "parts": "Huile Elf Tranself NFP 75W80 (ou TRX 75W80 d'origine) — ~2,4 à 2,6 L (à confirmer)",
+    "tips": "Renault ne prévoit pas de vidange périodique, mais à ~200 000 km une vidange préventive soulage les synchros de la PK6 (réputés fragiles et sensibles à l'huile). Utiliser STRICTEMENT la norme préconisée. Remplir par l'orifice de remplissage jusqu'à débordement."
+   },
+   {
+    "enabled": true,
+    "custom": true,
+    "id": "leve-vitres",
+    "name": "Lève-vitres arrière (défaut connu)",
+    "category": "Carrosserie",
+    "kind": "check",
+    "intervalKm": null,
+    "intervalMonths": 6,
+    "difficulty": "moyen",
+    "parts": "Mécanisme / moteur de lève-vitre AR (souvent le câble ou le moteur)",
+    "tips": "Signalé non fonctionnel à l'achat (les 2 arrière). Vérifier d'abord le fusible et l'interrupteur de sécurité enfants, puis la tension au connecteur du moteur. Défaut fréquent sur Vel Satis."
+   }
+  ],
+  "logs": [
+   {
+    "id": "l-hist-vidange",
+    "origin": "avant",
+    "date": "2026-05-15",
+    "km": 189200,
+    "title": "Vidange + tous les filtres (selon annonce)",
+    "itemIds": [
+     "vidange",
+     "filtre-air",
+     "filtre-gasoil",
+     "filtre-habitacle"
+    ],
+    "cost": null,
+    "vendor": "",
+    "parts": "",
+    "notes": "D'après l'annonce : « vidange avec tous les filtres en mai, environ 6 000 km ». Date et kilométrage exacts à corriger avec la facture."
+   },
+   {
+    "id": "l-hist-pneus",
+    "origin": "avant",
+    "date": "2025-06-01",
+    "km": null,
+    "title": "4 pneus été neufs (selon annonce)",
+    "itemIds": [],
+    "cost": null,
+    "vendor": "",
+    "parts": "",
+    "notes": "Date approximative (« l'année dernière »). Noter marque et DOT des pneus."
+   }
+  ],
+  "readings": [],
+  "docs": [],
+  "tech": [
+   {
+    "id": "p-0",
+    "section": "id",
+    "label": "Modèle",
+    "value": "Renault Vel Satis phase 2 (2005–2009), type BJ0B"
+   },
+   {
+    "id": "p-1",
+    "section": "id",
+    "label": "Moteur",
+    "value": "2.0 dCi 175 ch (127 kW) FAP — code M9R (variante 762/763 à lire sur la plaque moteur), common rail, turbo, 360 N·m"
+   },
+   {
+    "id": "p-2",
+    "section": "id",
+    "label": "Boîte",
+    "value": "Manuelle 6 rapports PK6"
+   },
+   {
+    "id": "p-3",
+    "section": "id",
+    "label": "Distribution",
+    "value": "Chaîne — sans remplacement périodique"
+   },
+   {
+    "id": "p-4",
+    "section": "id",
+    "label": "Puissance fiscale / Crit'Air",
+    "value": "11 CV · Crit'Air 3"
+   },
+   {
+    "id": "p-5",
+    "section": "id",
+    "label": "Finition",
+    "value": "Initiale probable (cuir beige, bois, Carminat)",
+    "notes": "À confirmer : champ D.2 de la carte grise",
+    "verify": true
+   },
+   {
+    "id": "p-6",
+    "section": "id",
+    "label": "N° VIN",
+    "value": "Case E de la carte grise — à utiliser pour valider chaque référence de pièce",
+    "verify": true
+   },
+   {
+    "id": "p-7",
+    "section": "fluids",
+    "label": "Huile moteur",
+    "value": "5W30 ACEA C4 — norme Renault RN0720 (obligatoire avec FAP)",
+    "alt": "Elf Evolution 900 DID 5W30 · Total Quartz Ineo MC3 / RCP 5W30 (vérifier la mention RN0720 sur le bidon)"
+   },
+   {
+    "id": "p-8",
+    "section": "fluids",
+    "label": "Capacité huile moteur",
+    "value": "Sources divergentes : ~5,9 L filtre compris (M9R 175 sur Laguna) à 7,4 L (catalogues). Acheter 7 L, remplir ~5,5 L puis compléter à la jauge sans dépasser MAX.",
+    "verify": true
+   },
+   {
+    "id": "p-9",
+    "section": "fluids",
+    "label": "Huile de boîte PK6",
+    "value": "Elf Tranself NFP 75W80 (remplace TRX 75W80) — ~2,4 à 2,6 L",
+    "ref": "77 11 143 534 (TRX 75W80)",
+    "notes": "Synchros sensibles à l'huile : ne pas mettre une GL-5 générique.",
+    "verify": true
+   },
+   {
+    "id": "p-10",
+    "section": "fluids",
+    "label": "Liquide de refroidissement",
+    "value": "Renault Glacéo Type D (ou équivalent homologué Type D) — capacité à confirmer",
+    "verify": true
+   },
+   {
+    "id": "p-11",
+    "section": "fluids",
+    "label": "Liquide de frein",
+    "value": "DOT 4 — ~1 L pour une purge complète"
+   },
+   {
+    "id": "p-12",
+    "section": "fluids",
+    "label": "Gaz de climatisation",
+    "value": "R134a — quantité sur l'étiquette sous le capot",
+    "verify": true
+   },
+   {
+    "id": "p-13",
+    "section": "fluids",
+    "label": "Additif FAP",
+    "value": "Aucun (FAP sans additif, contrairement aux PSA Eolys)"
+   },
+   {
+    "id": "p-14",
+    "section": "parts",
+    "label": "Filtre à huile",
+    "ref": "",
+    "alt": "MANN HU 618 x · Purflux L470",
+    "notes": "MANN liste HU 618 x pour Vel Satis 2.0 dCi M9R à partir de 05/2006."
+   },
+   {
+    "id": "p-15",
+    "section": "parts",
+    "label": "Filtre à air",
+    "ref": "82 00 799 782 (vu sur 2.0 dCi 150)",
+    "alt": "MANN C 24 123/2",
+    "verify": true
+   },
+   {
+    "id": "p-16",
+    "section": "parts",
+    "label": "Filtre à gazole",
+    "ref": "82 00 780 962 ou 82 00 780 950",
+    "notes": "Deux montages existent (avec ou sans connecteur de détecteur d'eau) : regarder le filtre en place.",
+    "verify": true
+   },
+   {
+    "id": "p-17",
+    "section": "parts",
+    "label": "Filtre d'habitacle",
+    "alt": "MANN CU 2149 (CUK 2149 charbon actif)",
+    "value": "210 × 208 × 30 mm"
+   },
+   {
+    "id": "p-18",
+    "section": "parts",
+    "label": "Plaquettes avant",
+    "alt": "Bosch 0 986 424 616 (BP345) · Ferodo FDB1541 · TRW GDB1468",
+    "notes": "Références vues pour 2.0 dCi phase 2 : vérifier avec le VIN (deux montages d'étriers selon versions).",
+    "verify": true
+   },
+   {
+    "id": "p-19",
+    "section": "parts",
+    "label": "Disques avant",
+    "value": "Ventilés Ø 324 × 28 mm, 5 trous, entraxe 108 mm",
+    "alt": "Brembo 09.9818.10 / 09.9818.11 · Bosch 0 986 479 565",
+    "notes": "Épaisseur mini gravée sur le disque.",
+    "verify": true
+   },
+   {
+    "id": "p-20",
+    "section": "parts",
+    "label": "Kit courroie d'accessoires",
+    "ref": "77 01 476 645 (vu sur 2.0 dCi 150)",
+    "alt": "SKF VKMA 36086",
+    "notes": "Lire la longueur 6PK… sur la courroie en place.",
+    "verify": true
+   },
+   {
+    "id": "p-21",
+    "section": "parts",
+    "label": "Balais d'essuie-glace",
+    "value": "Longueurs à mesurer sur la voiture",
+    "verify": true
+   },
+   {
+    "id": "p-22",
+    "section": "torques",
+    "label": "Écrous / vis de roue",
+    "value": "105 N·m (10,5 daN·m) — serrage en étoile, re-contrôle après 50 km"
+   },
+   {
+    "id": "p-23",
+    "section": "torques",
+    "label": "Bouchon de vidange moteur",
+    "value": "~30 N·m avec joint neuf (valeur usuelle, à confirmer)",
+    "verify": true
+   },
+   {
+    "id": "p-24",
+    "section": "torques",
+    "label": "Filtre à huile",
+    "value": "Serrage à la main + 3/4 de tour après contact du joint (joint huilé)"
+   },
+   {
+    "id": "p-25",
+    "section": "tires",
+    "label": "Dimension d'origine",
+    "value": "225/55 R17 (jantes alliage 17″, entraxe 5 × 108)"
+   },
+   {
+    "id": "p-26",
+    "section": "tires",
+    "label": "Pressions (à froid)",
+    "value": "≈ 2,2 bar AV / 2,0 bar AR (en charge : AV +0,1 à 0,2)",
+    "notes": "La valeur de l'étiquette de portière conducteur fait foi.",
+    "verify": true
+   },
+   {
+    "id": "p-27",
+    "section": "tires",
+    "label": "Pneus actuels",
+    "value": "4 pneus été changés en 2025 (annonce) + 2 pneus 4 saisons fournis",
+    "notes": "Noter marque / DOT (date de fabrication) de chaque pneu."
+   },
+   {
+    "id": "p-28",
+    "section": "elec",
+    "label": "Batterie 12 V",
+    "value": "80–85 Ah, 740–800 A, ~315 × 175 × 190 mm",
+    "alt": "Bosch S4 0 092 S40 110 (80 Ah / 740 A) · Bosch S5 0 092 S50 110 (85 Ah / 800 A)",
+    "verify": true
+   },
+   {
+    "id": "p-29",
+    "section": "elec",
+    "label": "Feux de croisement xénon",
+    "value": "D2S 35 W (culot Pk32d-2) — plusieurs sources citent D1S",
+    "notes": "Vérifier l'inscription sur l'ampoule en place. Haute tension : débrancher la batterie avant intervention.",
+    "verify": true
+   },
+   {
+    "id": "p-30",
+    "section": "elec",
+    "label": "Cartes mains-libres",
+    "value": "2 cartes fournies — pile de la carte : modèle à lire à l'intérieur de la carte",
+    "verify": true
+   },
+   {
+    "id": "p-31",
+    "section": "misc",
+    "label": "Défauts connus à l'achat",
+    "value": "Lève-vitres arrière non fonctionnels (×2) · ciel de toit qui commence à se décoller · quelques rayures"
+   },
+   {
+    "id": "p-32",
+    "section": "misc",
+    "label": "Accessoire fourni",
+    "value": "Attelage d'occasion, jamais installé"
+   },
+   {
+    "id": "p-33",
+    "section": "misc",
+    "label": "Points de vigilance Vel Satis",
+    "value": "Électronique (carte, lève-vitres, capteurs), dilution de l'huile et colmatage FAP en usage urbain, synchros de boîte PK6, silentblocs de train avant sur les gros kilométrages."
+   },
+   {
+    "id": "p-34",
+    "section": "misc",
+    "label": "Sources",
+    "value": "Fiche Vel Satis 2.0 dCi (Planète Renault, vehicule.3online.fr, L'argus) ; catalogues MANN, Oscaro, Mister Auto, Autodoc ; rensatis.com ; forumvelsatis.fr. Le carnet d'entretien et le catalogue Renault (VIN) font foi."
+   }
+  ],
+  "settings": {
+   "reminderDay": 1,
+   "reminderWeekday": 0,
+   "readingFreq": "weekly",
+   "kmPerMonthOverride": null,
+   "lastNotified": null
+  },
+  "presetLabel": "Renault Vel Satis 2.0 dCi 175 FAP (M9R) — BVM6"
+ },
+ "files": []
+}

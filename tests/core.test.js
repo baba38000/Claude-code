@@ -80,3 +80,19 @@ test('ICS valide', () => {
   assert.strictEqual((ics.match(/BEGIN:VEVENT/g) || []).length, (ics.match(/END:VEVENT/g) || []).length);
   for (const line of ics.split('\r\n')) assert.ok(line.length <= 75, line);
 });
+
+test('fiche Vel Satis : plan ajusté + éléments ajoutés + données de départ', () => {
+  global.window = {};
+  require('../tech-presets.js');
+  const p = window.TECH_PRESETS.find((x) => x.label.startsWith('Renault Vel Satis'));
+  const s = baseState();
+  s.vehicle.timing = 'chaine';
+  s.plan = C.defaultPlan(s.vehicle);
+  C.applyPreset(s, p);
+  assert.strictEqual(s.plan.find((i) => i.id === 'vidange').intervalKm, 10000);
+  assert.ok(s.plan.some((i) => i.id === 'diag-fap'));
+  assert.ok(s.tech.length > 30);
+  const start = require('../demarrage-vel-satis.json');
+  assert.strictEqual(start.app, 'carnet-auto');
+  assert.strictEqual(start.state.vehicle.timing, 'chaine');
+});

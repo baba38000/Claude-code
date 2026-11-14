@@ -152,6 +152,13 @@
     exportICS: exportICS,
     exportJSON: exportJSON,
     importJSON: () => $('#import-file').click(),
+    loadStarter: async () => {
+      try {
+        const res = await fetch('demarrage-vel-satis.json', { cache: 'no-store' });
+        await importData(await res.json(), false);
+        openVehicleForm();
+      } catch (e) { toast('Chargement impossible : ' + e.message); }
+    },
     notif: enableNotifications,
     resetPlan: () => {
       if (!confirm('Régénérer le plan par défaut ? Tes éléments personnalisés sont conservés, les intervalles modifiés des éléments standards sont réinitialisés.')) return;
@@ -171,10 +178,8 @@
       const p = matchingPreset();
       if (!p) return;
       if (state.tech && state.tech.length && !confirm('Remplacer la doc technique actuelle par la fiche « ' + p.label + ' » ? (tes lignes ajoutées à la main sont conservées)')) return;
-      const mine = (state.tech || []).filter((r) => r.custom);
-      state.tech = p.rows.map((r, i) => Object.assign({ id: 'p-' + i }, r)).concat(mine);
-      if (p.plan) for (const [pid, patch] of Object.entries(p.plan)) { const it = state.plan.find((x) => x.id === pid); if (it) Object.assign(it, patch); }
-      save(); render(); toast('Fiche constructeur chargée ✔');
+      C.applyPreset(state, p);
+      save(); render(); toast('Fiche constructeur chargée ✔ (doc + plan ajusté)');
     },
   };
 
@@ -187,6 +192,9 @@
         <p class="muted small">Ensuite : saisis l'historique d'entretien d'avant ton achat (factures, carnet), fais un relevé de km chaque semaine ou chaque mois, et l'appli te dit quoi vérifier et quoi changer, et quand.</p>
         <div class="btns"><button class="btn primary" data-action="setup">🚗 Configurer ma voiture</button>
         <button class="btn" data-action="importJSON">📥 Restaurer une sauvegarde</button></div>
+        <div class="card" style="margin-top:14px"><h3>🚘 Renault Vel Satis 2.0 dCi 175</h3>
+          <p class="small muted">Démarrage préparé : fiche véhicule, plan d'entretien « recommandé » ajusté au M9R à FAP, doc technique (huile, filtres, freins, couples, pneus, batterie…), dernière vidange connue et défauts signalés à l'achat. Il te restera à vérifier la date d'achat, le km et la date de 1re immatriculation.</p>
+          <div class="btns"><button class="btn primary" data-action="loadStarter">Charger la Vel Satis</button></div></div>
         ${importInput()}
       </div>`;
     }
@@ -716,18 +724,21 @@
   }
   async function importJSON(file) {
     if (!file) return;
-    try {
-      const data = JSON.parse(await file.text());
+    try { await importData(JSON.parse(await file.text()), true); }
+    catch (e) { toast('Import impossible : ' + e.message); }
+  }
+  async function importData(data, ask) {
+    {
       if (data.app !== 'carnet-auto' || !data.state) throw new Error('fichier non reconnu');
-      if (!confirm('Remplacer les données actuelles par cette sauvegarde ?')) return;
+      if (ask && !confirm('Remplacer les données actuelles par cette sauvegarde ?')) return;
       await idb.clear().catch(() => {});
       for (const f of data.files || []) {
         const bin = Uint8Array.from(atob(f.data), (c) => c.charCodeAt(0));
         await idb.put({ id: f.id, name: f.name, type: f.type, size: f.size, blob: new Blob([bin], { type: f.type }) });
       }
       state = Object.assign(C.defaultState(), data.state);
-      save(); tab = 'dashboard'; render(); toast('Sauvegarde restaurée ✔');
-    } catch (e) { toast('Import impossible : ' + e.message); }
+      save(); tab = 'dashboard'; render(); toast('Données chargées ✔');
+    }
   }
 
   // ================= Notifications & service worker =================
