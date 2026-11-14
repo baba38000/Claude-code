@@ -96,3 +96,21 @@ test('fiche Vel Satis : plan ajusté + éléments ajoutés + données de départ
   assert.strictEqual(start.app, 'carnet-auto');
   assert.strictEqual(start.state.vehicle.timing, 'chaine');
 });
+
+test('pleins : complétion des valeurs, prix moyen pondéré, conso plein à plein', () => {
+  const f = C.completeFuel({ liters: 50, total: 90 });
+  assert.strictEqual(f.price, 1.8);
+  assert.strictEqual(C.completeFuel({ total: 100, price: 2 }).liters, 50);
+  const s = baseState({ fuels: [
+    { id: 'a', date: '2026-01-02', km: 100000, liters: 60, total: 108, price: 1.8, full: true },
+    { id: 'b', date: '2026-01-10', km: 100500, liters: 20, total: 40, price: 2, full: false },
+    { id: 'c', date: '2026-01-20', km: 101000, liters: 45, total: 81, price: 1.8, full: true },
+  ] });
+  const st = C.fuelStats(s);
+  assert.strictEqual(st.count, 3);
+  assert.ok(Math.abs(st.avgPrice - 229 / 125) < 1e-9);
+  // (20 + 45) L sur 1000 km = 6,5 L/100
+  assert.ok(Math.abs(st.conso - 6.5) < 1e-9);
+  // un plein avec km compte comme relevé
+  assert.strictEqual(C.monthlyCheckDue(s, C.parseDate('2026-01-25')).due, false);
+});

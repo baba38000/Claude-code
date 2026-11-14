@@ -12,6 +12,7 @@ Appli web (PWA, installable sur téléphone) pour suivre l'entretien de ta voitu
   - intervalle en km **et/ou** en mois (le premier atteint), modifiable.
 - **Journal** : entretiens d'avant l'achat (📜), faits toi-même (🧰) ou au garage (🏪), avec le coût, les pièces et les factures jointes. Chaque intervention remet l'échéance à zéro.
 - **Suivi kilométrique** hebdo ou mensuel, avec graphique et moyenne km/mois. Le kilométrage du jour est estimé entre deux relevés.
+- **⛽ Pleins** : date, km, litres, montant, prix au litre (2 valeurs suffisent, la 3e se calcule), plein complet ou partiel, station. Stats : prix moyen au litre pondéré, min/max, consommation en L/100 km calculée plein à plein, coût aux 100 km, dépenses par mois et sur 12 mois, graphiques. Un plein avec le km compte aussi comme relevé kilométrique.
 - **Check-up mensuel** : une checklist (pneus, niveaux, éclairage, voyants, bruits, fuites…). Les points à surveiller remontent sur l'accueil.
 - **Factures & documents** : photos et PDF classés par catégorie (pièces, garage, CT, achat, assurance…), avec montant et lien vers l'intervention.
 - **📘 Doc technique** : liquides et capacités, références de pièces d'origine et leurs équivalences, couples de serrage, pneus, ampoules et batterie. Recherche intégrée, fiches constructeur dans `tech-presets.js`.

@@ -1,5 +1,5 @@
 /* Service worker : hors-ligne + notifications en arrière-plan (Android, appli installée) */
-const CACHE = 'carnet-auto-v2';
+const CACHE = 'carnet-auto-v3';
 const ASSETS = ['./', 'index.html', 'styles.css', 'core.js', 'app.js', 'tech-presets.js', 'demarrage-vel-satis.json', 'manifest.webmanifest', 'icon.svg'];
 
 self.addEventListener('install', (e) => {

@@ -67,6 +67,7 @@
   const fdate = (s) => { const d = typeof s === 'string' ? C.parseDate(s) : s; return d ? d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'; };
   const fmonth = (d) => d ? d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : '—';
   const todayISO = () => C.toISO(C.today());
+  const price3 = (n) => (n == null || isNaN(n) ? '—' : n.toLocaleString('fr-FR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + ' €');
   const num = (v) => (v === '' || v == null ? null : Number(String(v).replace(/\s/g, '').replace(',', '.')));
   const carName = () => { const v = state.vehicle || {}; return v.name || [v.brand, v.model].filter(Boolean).join(' ') || 'Ma voiture'; };
 
@@ -114,7 +115,7 @@
 
   // ================= Navigation =================
   let tab = 'dashboard';
-  const views = { tech: viewTech, dashboard: viewDashboard, plan: viewPlan, logs: viewLogs, readings: viewReadings, docs: viewDocs, settings: viewSettings };
+  const views = { fuel: viewFuel, tech: viewTech, dashboard: viewDashboard, plan: viewPlan, logs: viewLogs, readings: viewReadings, docs: viewDocs, settings: viewSettings };
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-tab]');
     if (b) { tab = b.dataset.tab; render(); window.scrollTo(0, 0); }
@@ -134,6 +135,7 @@
     $$('[data-log]', root).forEach((el) => el.addEventListener('click', () => openLogForm(el.dataset.log)));
     $$('[data-reading]', root).forEach((el) => el.addEventListener('click', () => openReadingForm(el.dataset.reading)));
     $$('[data-doc]', root).forEach((el) => el.addEventListener('click', () => openDocForm(el.dataset.doc)));
+    $$('[data-fuel]', root).forEach((el) => el.addEventListener('click', () => openFuelForm(el.dataset.fuel)));
     $$('[data-action]', root).forEach((el) => el.addEventListener('click', (e) => { e.stopPropagation(); actions[el.dataset.action](el); }));
     $$('img[data-thumb]', root).forEach(async (img) => {
       const f = await idb.get(img.dataset.thumb).catch(() => null);
@@ -148,6 +150,7 @@
     addLog: () => openLogForm(),
     addPastLog: () => openLogForm(null, { origin: 'avant' }),
     addDoc: () => openDocForm(),
+    addFuel: () => openFuelForm(),
     addItem: () => openItemForm(),
     exportICS: exportICS,
     exportJSON: exportJSON,
@@ -216,8 +219,8 @@
     let html = '';
     if (rd.due) {
       html += `<div class="card alert"><h3>📅 Relevé km ${weekly ? 'de la semaine' : 'du mois'}</h3>
-        <p>${rd.daysSince == null ? 'Aucun relevé pour l\'instant.' : `Dernier relevé il y a ${rd.daysSince} jours.`} Note ton kilométrage pour garder les échéances à jour.</p>
-        <div class="btns"><button class="btn primary" data-action="quickKm">Noter le km</button>
+        <p>${rd.daysSince == null ? 'Aucun relevé pour l\'instant.' : `Dernier relevé il y a ${rd.daysSince} jours.`} Note ton kilométrage (ou saisis un plein avec le km) pour garder les échéances à jour.</p>
+        <div class="btns"><button class="btn primary" data-action="quickKm">Noter le km</button><button class="btn" data-action="addFuel">⛽ Plein</button>
         ${fc.due ? '<button class="btn" data-action="fullCheck">Relevé + check-up complet</button>' : ''}</div></div>`;
     } else if (fc.due) {
       html += `<div class="card alert"><h3>🔍 Check-up mensuel</h3><p>${fc.daysSince == null ? 'Pas encore de check-up complet.' : `Dernier check-up il y a ${fc.daysSince} jours.`} 10 minutes : pneus, niveaux, éclairage, voyants…</p>
@@ -231,7 +234,15 @@
     </div>`;
 
     html += `<div class="btns"><button class="btn sm" data-action="quickKm">＋ Km</button><button class="btn sm" data-action="fullCheck">＋ Check-up</button>
+      <button class="btn sm" data-action="addFuel">＋ Plein</button>
       <button class="btn sm" data-action="addLog">＋ Intervention</button><button class="btn sm" data-action="addDoc">＋ Facture</button></div>`;
+    const fst = C.fuelStats(state);
+    if (fst.count) {
+      html += `<div class="card" data-tab="fuel" style="cursor:pointer"><div class="row"><h3>⛽ Carburant</h3><span class="small muted">voir →</span></div>
+        <div class="stats"><div class="stat"><b>${price3(fst.avgPrice)}</b><span>prix moyen / L</span></div>
+        <div class="stat"><b>${fst.conso != null ? fst.conso.toFixed(1).replace('.', ',') : '—'}</b><span>L / 100 km</span></div>
+        <div class="stat"><b>${eur(fst.last12)}</b><span>sur 12 mois</span></div></div></div>`;
+    }
 
     if (problems.length) {
       html += `<div class="card danger"><h3>⚠️ Points relevés au dernier check-up (${fdate(last.date)})</h3>
@@ -382,6 +393,92 @@
       <path class="line" d="${d}"/>${pts.map((p) => `<circle class="dot" cx="${x(p.t)}" cy="${y(p.km)}" r="3"/>`).join('')}
       <text x="${P}" y="${H - 5}">${fdate(new Date(t0))}</text><text x="${W - 10}" y="${H - 5}" text-anchor="end">${fdate(new Date(t1))}</text>
       <text x="2" y="${y(k1) + 4}">${Math.round(k1 / 1000)}k</text><text x="2" y="${y(k0) + 4}">${Math.round(k0 / 1000)}k</text></svg>`;
+  }
+
+  // ---------- Pleins ----------
+  function viewFuel() {
+    if (!state.vehicle) return needVehicle();
+    const st = C.fuelStats(state);
+    const fs = (state.fuels || []).slice().sort((a, b) => b.date.localeCompare(a.date) || (Number(b.km) || 0) - (Number(a.km) || 0));
+    const f1 = (n) => (n == null ? '—' : n.toFixed(1).replace('.', ','));
+    const maxM = Math.max(1, ...st.months.map((m) => m.total));
+    return `<div class="section-title"><h2>⛽ Pleins</h2><button class="btn sm primary" data-action="addFuel">＋ Plein</button></div>
+      <div class="stats">
+        <div class="stat"><b>${price3(st.avgPrice)}</b><span>prix moyen / L</span></div>
+        <div class="stat"><b>${f1(st.conso)}</b><span>L / 100 km</span></div>
+        <div class="stat"><b>${st.costPer100 != null ? eur(st.costPer100) : '—'}</b><span>pour 100 km</span></div>
+        <div class="stat"><b>${eur(st.last12)}</b><span>sur 12 mois</span></div>
+        <div class="stat"><b>${eur(st.total)}</b><span>total (${st.count} plein${st.count > 1 ? 's' : ''})</span></div>
+        <div class="stat"><b>${nf.format(Math.round(st.liters))} L</b><span>au total</span></div>
+      </div>
+      ${st.minPrice != null ? `<p class="small muted">Prix au litre : min ${price3(st.minPrice)} · max ${price3(st.maxPrice)} · dernier ${price3(st.lastPrice)}</p>` : ''}
+      <p class="small muted">Moyenne pondérée par les litres. Consommation calculée « plein à plein » : coche « plein complet » et saisis le km à chaque fois pour un chiffre fiable.</p>
+      ${st.pricePoints.length >= 2 ? `<div class="card"><h3>Prix au litre</h3>${lineChart(st.pricePoints.map((p) => ({ t: C.parseDate(p.date).getTime(), v: p.price })), (v) => v.toFixed(3).replace('.', ',') + ' €')}</div>` : ''}
+      ${st.consoPoints.length >= 2 ? `<div class="card"><h3>Consommation (L/100 km)</h3>${lineChart(st.consoPoints.map((p) => ({ t: C.parseDate(p.date).getTime(), v: p.conso })), (v) => v.toFixed(1).replace('.', ','))}</div>` : ''}
+      ${st.count ? `<div class="card"><h3>Dépenses par mois</h3><div class="bars">${st.months.map((m) => `<div class="bar" title="${esc(fmonth(m.date))} : ${eur(m.total)}"><i style="height:${Math.round((m.total / maxM) * 100)}%"></i><span>${m.date.toLocaleDateString('fr-FR', { month: 'narrow' })}</span></div>`).join('')}</div></div>` : ''}
+      <div class="card">${fs.map((f) => `<div class="item" data-fuel="${esc(f.id)}"><div class="item-main">
+          <div class="item-title">${f.liters != null ? nf.format(f.liters) + ' L' : '—'} · ${price3(f.price)}/L${f.full === false ? ' <span class="tag">partiel</span>' : ''}</div>
+          <div class="item-meta">${fdate(f.date)}${f.km != null && f.km !== '' ? ' · ' + km(f.km) : ''}${f.station ? ' · ' + esc(f.station) : ''}</div>
+        </div><b>${eur(f.total)}</b></div>`).join('') || '<p class="empty">Aucun plein enregistré.</p>'}</div>`;
+  }
+
+  function lineChart(pts, fmt) {
+    const W = 600, H = 150, P = 44;
+    const t0 = pts[0].t, t1 = pts[pts.length - 1].t;
+    let v0 = Math.min(...pts.map((p) => p.v)), v1 = Math.max(...pts.map((p) => p.v));
+    if (v1 - v0 < 1e-6) { v0 -= 1; v1 += 1; }
+    const x = (t) => P + ((t - t0) / Math.max(1, t1 - t0)) * (W - P - 10);
+    const y = (v) => H - 20 - ((v - v0) / (v1 - v0)) * (H - 40);
+    const d = pts.map((p, i) => (i ? 'L' : 'M') + x(p.t).toFixed(1) + ',' + y(p.v).toFixed(1)).join(' ');
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img">
+      <line class="axis" x1="${P}" y1="${H - 20}" x2="${W}" y2="${H - 20}"/>
+      <path class="line" d="${d}"/>${pts.map((p) => `<circle class="dot" cx="${x(p.t)}" cy="${y(p.v)}" r="3"><title>${fmt(p.v)}</title></circle>`).join('')}
+      <text x="2" y="${y(v1) + 4}">${fmt(v1)}</text><text x="2" y="${y(v0) + 4}">${fmt(v0)}</text>
+      <text x="${P}" y="${H - 5}">${fdate(new Date(t0))}</text><text x="${W - 10}" y="${H - 5}" text-anchor="end">${fdate(new Date(t1))}</text></svg>`;
+  }
+
+  function openFuelForm(id) {
+    const last = (state.fuels || []).slice().sort((a, b) => b.date.localeCompare(a.date))[0];
+    const f = id ? state.fuels.find((x) => x.id === id)
+      : { date: todayISO(), km: C.estimatedKm(state) ?? '', full: true, station: last ? last.station : '', fuelType: last ? last.fuelType : (state.vehicle.fuel === 'diesel' ? 'Gazole (B7)' : '') };
+    const lastKm = C.lastKnownKm(state);
+    modal(`<h2>⛽ ${id ? 'Modifier le plein' : 'Nouveau plein'}</h2>
+      <div class="grid2"><div><label>Date</label><input name="date" type="date" required value="${esc(f.date)}"></div>
+        <div><label>Kilométrage compteur</label><input name="km" type="number" inputmode="numeric" value="${esc(f.km ?? '')}" placeholder="${lastKm ? 'dernier : ' + nf.format(lastKm.km) : ''}"></div></div>
+      <p class="small muted">Remplis 2 des 3 champs ci-dessous, le 3e se calcule tout seul.</p>
+      <div class="grid2"><div><label>Litres</label><input name="liters" type="number" step="0.01" inputmode="decimal" value="${esc(f.liters ?? '')}"></div>
+        <div><label>Montant payé (€)</label><input name="total" type="number" step="0.01" inputmode="decimal" value="${esc(f.total ?? '')}"></div></div>
+      <label>Prix au litre (€)</label><input name="price" type="number" step="0.001" inputmode="decimal" value="${esc(f.price ?? '')}">
+      <div class="check-list"><label><input type="checkbox" name="full" ${f.full !== false ? 'checked' : ''}> Plein complet (réservoir rempli jusqu'au déclenchement)</label></div>
+      <div class="grid2"><div><label>Station</label><input name="station" value="${esc(f.station || '')}" placeholder="ex : Leclerc Voiron"></div>
+        <div><label>Carburant</label><input name="fuelType" value="${esc(f.fuelType || '')}" placeholder="Gazole (B7), B10, HVO…"></div></div>
+      <label>Notes</label><input name="notes" value="${esc(f.notes || '')}" placeholder="autoroute, ville, remorque…">`,
+    (fd) => {
+      const o = C.completeFuel({
+        date: fd.get('date'), km: num(fd.get('km')), liters: num(fd.get('liters')), total: num(fd.get('total')), price: num(fd.get('price')),
+        full: fd.has('full'), station: fd.get('station').trim(), fuelType: fd.get('fuelType').trim(), notes: fd.get('notes').trim(),
+      });
+      if ([o.liters, o.total, o.price].filter((v) => v != null).length < 2) { toast('Renseigne au moins 2 valeurs parmi litres / montant / prix au litre'); return false; }
+      if (o.km != null && lastKm && !id && o.km < lastKm.km && !confirm(`Kilométrage inférieur au dernier connu (${nf.format(lastKm.km)} km). Enregistrer quand même ?`)) return false;
+      state.fuels = state.fuels || [];
+      if (id) Object.assign(f, o); else state.fuels.push(Object.assign({ id: 'fu-' + C.uid() }, o));
+      save(); toast(`Plein enregistré ✔ ${price3(o.price)}/L`);
+    }, {
+      onOpen: (form) => {
+        // Calcul en direct du champ manquant
+        const L = $('[name=liters]', form), T = $('[name=total]', form), P = $('[name=price]', form);
+        let edited = [];
+        const upd = (e) => {
+          edited = edited.filter((n) => n !== e.target.name).concat(e.target.name).slice(-2);
+          const v = (i) => num(i.value);
+          if (edited.includes('liters') && edited.includes('total') && v(L) > 0 && v(T) != null) P.value = (v(T) / v(L)).toFixed(3);
+          else if (edited.includes('liters') && edited.includes('price') && v(L) != null && v(P) != null) T.value = (v(L) * v(P)).toFixed(2);
+          else if (edited.includes('total') && edited.includes('price') && v(P) > 0 && v(T) != null) L.value = (v(T) / v(P)).toFixed(2);
+        };
+        [L, T, P].forEach((i) => i.addEventListener('input', upd));
+      },
+      onDelete: id ? () => { state.fuels = state.fuels.filter((x) => x.id !== id); save(); } : null,
+    });
   }
 
   let docFilter = 'all';

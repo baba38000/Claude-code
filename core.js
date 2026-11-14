@@ -153,6 +153,7 @@
     if (v.purchaseDate && v.purchaseKm != null && v.purchaseKm !== '') pts.push({ date: v.purchaseDate, km: Number(v.purchaseKm) });
     for (const r of state.readings || []) if (r.date && r.km != null) pts.push({ date: r.date, km: Number(r.km) });
     for (const l of state.logs || []) if (l.date && l.km != null && l.km !== '') pts.push({ date: l.date, km: Number(l.km) });
+    for (const f of state.fuels || []) if (f.date && f.km != null && f.km !== '') pts.push({ date: f.date, km: Number(f.km) });
     pts.sort((a, b) => a.date.localeCompare(b.date) || a.km - b.km);
     return pts;
   }
@@ -283,8 +284,11 @@
     now = now || today();
     const r = lastReading(state);
     const period = readingPeriod(state);
-    if (!r) return { due: true, daysSince: null, period };
-    const daysSince = diffDays(now, parseDate(r.date));
+    // Un plein avec le km compte comme relevé
+    const dates = [r && r.date].concat((state.fuels || []).filter((f) => f.km != null && f.km !== '').map((f) => f.date)).filter(Boolean).sort();
+    const lastDate = dates[dates.length - 1];
+    if (!lastDate) return { due: true, daysSince: null, period };
+    const daysSince = diffDays(now, parseDate(lastDate));
     return { due: daysSince >= (period === 7 ? 7 : 28), daysSince, period };
   }
 
@@ -394,6 +398,72 @@
     return state;
   }
 
+  // ---------- Carburant ----------
+  /** Complète litres / total / prix au litre à partir de 2 des 3 valeurs. */
+  function completeFuel(f) {
+    const n = (v) => (v === '' || v == null || isNaN(Number(v)) ? null : Number(v));
+    let L = n(f.liters), T = n(f.total), P = n(f.price);
+    if (L == null && T != null && P) L = T / P;
+    if (T == null && L != null && P != null) T = L * P;
+    if (P == null && L && T != null) P = T / L;
+    return Object.assign({}, f, {
+      liters: L == null ? null : Math.round(L * 100) / 100,
+      total: T == null ? null : Math.round(T * 100) / 100,
+      price: P == null ? null : Math.round(P * 1000) / 1000,
+    });
+  }
+
+  /**
+   * Statistiques carburant. Consommation calculée « plein à plein » :
+   * litres versés entre deux pleins complets / km parcourus entre les deux.
+   */
+  function fuelStats(state) {
+    const fs = (state.fuels || []).filter((f) => f.date).slice()
+      .sort((a, b) => a.date.localeCompare(b.date) || (Number(a.km) || 0) - (Number(b.km) || 0));
+    const withL = fs.filter((f) => f.liters > 0 && f.total > 0);
+    const liters = withL.reduce((a, f) => a + Number(f.liters), 0);
+    const totalAll = fs.reduce((a, f) => a + (Number(f.total) || 0), 0);
+    const totalWithL = withL.reduce((a, f) => a + Number(f.total), 0);
+    const prices = withL.map((f) => Number(f.price || f.total / f.liters));
+
+    let segL = 0, segKm = 0, prevFull = null, acc = 0;
+    const consoPoints = [];
+    for (const f of fs) {
+      if (f.km == null || f.km === '') { prevFull = null; acc = 0; continue; } // km manquant : on casse la chaîne
+      if (prevFull) acc += Number(f.liters) || 0;
+      if (f.full !== false) {
+        if (prevFull && Number(f.km) > Number(prevFull.km) && acc > 0) {
+          const d = Number(f.km) - Number(prevFull.km);
+          segL += acc; segKm += d;
+          consoPoints.push({ date: f.date, conso: (acc / d) * 100 });
+        }
+        prevFull = f; acc = 0;
+      }
+    }
+    const conso = segKm > 0 ? (segL / segKm) * 100 : null;
+    const avgPrice = liters > 0 ? totalWithL / liters : null;
+
+    const now = today();
+    const months = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = toISO(d).slice(0, 7);
+      const m = fs.filter((f) => f.date.slice(0, 7) === key);
+      months.push({ key, date: d, total: m.reduce((a, f) => a + (Number(f.total) || 0), 0), liters: m.reduce((a, f) => a + (Number(f.liters) || 0), 0) });
+    }
+    const last12 = fs.filter((f) => diffDays(now, parseDate(f.date)) <= 365).reduce((a, f) => a + (Number(f.total) || 0), 0);
+
+    return {
+      count: fs.length, liters, total: totalAll, avgPrice,
+      minPrice: prices.length ? Math.min(...prices) : null,
+      maxPrice: prices.length ? Math.max(...prices) : null,
+      lastPrice: prices.length ? prices[prices.length - 1] : null,
+      conso, costPer100: conso != null && avgPrice != null ? conso * avgPrice : null,
+      consoPoints, months, last12,
+      pricePoints: withL.map((f) => ({ date: f.date, price: Number(f.price || f.total / f.liters) })),
+    };
+  }
+
   function defaultState() {
     return {
       version: 1,
@@ -402,6 +472,7 @@
       logs: [],
       readings: [],
       docs: [],
+      fuels: [],
       tech: [],
       settings: { reminderDay: 1, reminderWeekday: 0, readingFreq: 'monthly', kmPerMonthOverride: null, lastNotified: null },
     };
@@ -409,7 +480,7 @@
 
   return {
     parseDate, toISO, today, addMonths, addDays, diffDays, uid,
-    defaultPlan, defaultState, applyPreset, kmPerDay, estimatedKm, lastKnownKm, lastDone,
+    defaultPlan, defaultState, applyPreset, completeFuel, fuelStats, kmPerDay, estimatedKm, lastKnownKm, lastDone,
     itemStatus, allStatuses, lastReading, monthlyCheckDue, fullCheckDue, readingPeriod, buildICS, MONTHLY_CHECKS,
   };
 });
