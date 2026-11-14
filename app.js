@@ -175,6 +175,7 @@
     logFilter: (el) => { logFilter = el.dataset.v; render(); },
     docFilter: (el) => { docFilter = el.dataset.v; render(); },
     openFile: (el) => openFile(el.dataset.id),
+    forceUpdate: () => forceUpdate(),
     addTech: (el) => openTechForm(null, el.dataset.sec),
     editTech: (el) => openTechForm(el.dataset.id),
     loadPreset: () => {
@@ -575,6 +576,9 @@
         ${s.lastBackup ? `<p class="small muted">Dernière sauvegarde : ${fdate(s.lastBackup)}</p>` : ''}
       </div>
       <div class="btns"><button class="btn danger" data-action="wipe">🗑️ Tout effacer</button></div>
+      <h2>Version</h2><div class="card"><p class="small">Carnet Auto <b>v${APP_VERSION}</b></p>
+        <p class="small muted">Si une nouveauté annoncée n'apparaît pas, force la mise à jour (tes données ne sont pas effacées).</p>
+        <div class="btns"><button class="btn" data-action="forceUpdate">🔄 Forcer la mise à jour</button></div></div>
       <p class="small muted" style="margin-top:20px">Les intervalles proposés sont indicatifs. La référence reste le carnet d'entretien du constructeur. Pour les opérations de sécurité (freins, distribution), en cas de doute, passe par un pro.</p>`;
   }
   const importInput = () => '<input type="file" id="import-file" accept="application/json,.json" hidden>';
@@ -908,8 +912,25 @@
     caches.open('carnet-auto-state').then((c) => c.put('./__summary', new Response(JSON.stringify({ car: carName(), msgs, date: todayISO() }), { headers: { 'Content-Type': 'application/json' } }))).catch(() => {});
   }
 
+  const APP_VERSION = '1.5 (pleins + conseils)';
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+      .then((reg) => { reg.update().catch(() => {}); document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); }); })
+      .catch(() => {});
+    // Nouvelle version installée → rechargement automatique (une seule fois)
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController && !reloaded) { reloaded = true; location.reload(); }
+    });
+  }
+  async function forceUpdate() {
+    try {
+      const regs = (await navigator.serviceWorker?.getRegistrations()) || [];
+      for (const r of regs) await r.unregister();
+      for (const k of await caches.keys()) if (k !== 'carnet-auto-state') await caches.delete(k);
+    } catch (e) { /* ignore */ }
+    location.reload();
   }
 
   render();

@@ -1,5 +1,5 @@
 /* Service worker : hors-ligne + notifications en arrière-plan (Android, appli installée) */
-const CACHE = 'carnet-auto-v4';
+const CACHE = 'carnet-auto-v5';
 const ASSETS = ['./', 'index.html', 'styles.css', 'core.js', 'app.js', 'tech-presets.js', 'advice.js', 'demarrage-vel-satis.json', 'manifest.webmanifest', 'icon.svg'];
 
 self.addEventListener('install', (e) => {
@@ -12,7 +12,8 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
-    fetch(e.request).then((res) => {
+    // no-store : contourne le cache HTTP de GitHub Pages (10 min) pour toujours avoir la dernière version
+    fetch(e.request, { cache: 'no-store' }).then((res) => {
       const copy = res.clone();
       caches.open(CACHE).then((c) => c.put(e.request, copy));
       return res;
