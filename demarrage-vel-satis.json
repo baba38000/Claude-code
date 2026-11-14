@@ -1,6 +1,6 @@
 {
  "app": "carnet-auto",
- "exportedAt": "2026-11-14T14:55:53.401Z",
+ "exportedAt": "2026-11-14T15:01:21.263Z",
  "state": {
   "version": 1,
   "vehicle": {
@@ -627,7 +627,10 @@
    "reminderWeekday": 0,
    "readingFreq": "weekly",
    "kmPerMonthOverride": null,
-   "lastNotified": null
+   "lastNotified": null,
+   "consoUrban": 9,
+   "consoRoad": 5.8,
+   "urbanShare": 80
   },
   "presetLabel": "Renault Vel Satis 2.0 dCi 175 FAP (M9R) — BVM6"
  },

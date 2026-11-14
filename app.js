@@ -250,6 +250,7 @@
         ${last.notes ? `<p class="muted small">${esc(last.notes)}</p>` : ''}</div>`;
     }
 
+    html += adviceSection();
     html += `<h2>🔧 Pièces à changer</h2><div class="card">${replace.length ? replace.map(itemRow).join('') : '<p class="muted">Rien à changer dans l\'immédiat 👍</p>'}</div>`;
     html += `<h2>🔍 Points à vérifier</h2><div class="card">${check.length ? check.map(itemRow).join('') : '<p class="muted">Rien à vérifier dans l\'immédiat 👍</p>'}</div>`;
     if (unknown.length) {
@@ -395,6 +396,27 @@
       <text x="2" y="${y(k1) + 4}">${Math.round(k1 / 1000)}k</text><text x="2" y="${y(k0) + 4}">${Math.round(k0 / 1000)}k</text></svg>`;
   }
 
+  // ---------- Conseils ----------
+  const ADV_ICON = { bad: '🚨', warn: '⚠️', data: '✏️', info: '💡' };
+  function adviceCard(a) {
+    const more = (a.tips && a.tips.length) || (a.facts && a.facts.length);
+    return `<div class="advice adv-${a.level}">
+      <div class="adv-title">${ADV_ICON[a.level]} ${esc(a.title)}</div>
+      <p>${esc(a.text)}</p>
+      ${more ? `<details><summary>${a.tips && a.tips.length ? 'Que faire ?' : 'Détails'}</summary>
+        ${(a.tips || []).map((t) => `<p>• ${esc(t)}</p>`).join('')}
+        ${(a.facts || []).map((t) => `<p class="small muted">${esc(t)}</p>`).join('')}</details>` : ''}
+      ${a.item ? `<div class="btns"><button class="btn sm" data-item="${esc(a.item)}">Voir l'élément du plan</button></div>` : ''}
+    </div>`;
+  }
+  function adviceSection(filter) {
+    let list = [];
+    try { list = Advice.compute(state); } catch (e) { console.error(e); }
+    if (filter) list = list.filter(filter);
+    if (!list.length) return '';
+    return `<h2>💡 Conseils <span class="small muted">(${list.length})</span></h2>${list.map(adviceCard).join('')}`;
+  }
+
   // ---------- Pleins ----------
   function viewFuel() {
     if (!state.vehicle) return needVehicle();
@@ -412,7 +434,8 @@
         <div class="stat"><b>${nf.format(Math.round(st.liters))} L</b><span>au total</span></div>
       </div>
       ${st.minPrice != null ? `<p class="small muted">Prix au litre : min ${price3(st.minPrice)} · max ${price3(st.maxPrice)} · dernier ${price3(st.lastPrice)}</p>` : ''}
-      <p class="small muted">Moyenne pondérée par les litres. Consommation calculée « plein à plein » : coche « plein complet » et saisis le km à chaque fois pour un chiffre fiable.</p>
+      <p class="small muted">Moyenne pondérée par les litres. Consommation calculée « plein à plein » : coche « plein complet » et saisis le km à chaque fois pour un chiffre fiable.${(() => { const e = Advice.expectedConso(state); return e ? ` Attendu pour ton usage : ≈ ${e.value.toFixed(1).replace('.', ',')} L/100 km.` : ''; })()}</p>
+      ${adviceSection((a) => a.tab === 'fuel')}
       ${st.pricePoints.length >= 2 ? `<div class="card"><h3>Prix au litre</h3>${lineChart(st.pricePoints.map((p) => ({ t: C.parseDate(p.date).getTime(), v: p.price })), (v) => v.toFixed(3).replace('.', ',') + ' €')}</div>` : ''}
       ${st.consoPoints.length >= 2 ? `<div class="card"><h3>Consommation (L/100 km)</h3>${lineChart(st.consoPoints.map((p) => ({ t: C.parseDate(p.date).getTime(), v: p.conso })), (v) => v.toFixed(1).replace('.', ','))}</div>` : ''}
       ${st.count ? `<div class="card"><h3>Dépenses par mois</h3><div class="bars">${st.months.map((m) => `<div class="bar" title="${esc(fmonth(m.date))} : ${eur(m.total)}"><i style="height:${Math.round((m.total / maxM) * 100)}%"></i><span>${m.date.toLocaleDateString('fr-FR', { month: 'narrow' })}</span></div>`).join('')}</div></div>` : ''}
@@ -515,7 +538,7 @@
         <p class="small muted">Achetée le ${fdate(v.purchaseDate)} à ${km(num(v.purchaseKm))}</p>` : '<p>Aucun véhicule.</p>'}
       <div class="btns"><button class="btn primary" data-action="setup">${v ? '✏️ Modifier la fiche véhicule' : '🚗 Configurer'}</button></div></div>
 
-      <h2>Rappels</h2><div class="card">
+      <h2>Usage & rappels</h2><div class="card">
         <form id="settings-form">
           <label>Fréquence du relevé kilométrique</label>
           <select name="readingFreq"><option value="weekly" ${s.readingFreq === 'weekly' ? 'selected' : ''}>Chaque semaine</option><option value="monthly" ${s.readingFreq !== 'weekly' ? 'selected' : ''}>Chaque mois</option></select>
@@ -523,6 +546,10 @@
             <div><label>Jour du check-up mensuel</label><input name="reminderDay" type="number" min="1" max="28" value="${esc(s.reminderDay || 1)}"></div>
             <div><label>Jour du relevé hebdo</label><select name="reminderWeekday">${days.map((d, i) => `<option value="${i}" ${Number(s.reminderWeekday || 0) === i ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
           </div>
+          <label>Part de conduite en ville : <b id="urban-val">${esc(s.urbanShare ?? 50)} %</b></label>
+          <input name="urbanShare" type="range" min="0" max="100" step="5" value="${esc(s.urbanShare ?? 50)}" oninput="document.getElementById('urban-val').textContent=this.value+' %'">
+          <label>Consommation de référence (L/100 km, vide = auto selon le véhicule et la part de ville)</label>
+          <input name="consoRef" type="number" step="0.1" inputmode="decimal" placeholder="${(() => { const e = Advice.expectedConso(Object.assign({}, state, { settings: Object.assign({}, s, { consoRef: null }) })); return e ? 'auto : ' + e.value.toFixed(1).replace('.', ',') : ''; })()}" value="${esc(s.consoRef || '')}">
           <label>Kilométrage mensuel (laisser vide = calcul auto)</label>
           <input name="kmPerMonthOverride" type="number" inputmode="numeric" placeholder="ex : 1200" value="${esc(s.kmPerMonthOverride || '')}">
           <div class="btns"><button class="btn" type="submit">Enregistrer</button></div>
@@ -562,6 +589,8 @@
     state.settings.reminderDay = Math.min(28, Math.max(1, Number(fd.get('reminderDay')) || 1));
     state.settings.reminderWeekday = Number(fd.get('reminderWeekday')) || 0;
     state.settings.kmPerMonthOverride = num(fd.get('kmPerMonthOverride')) || null;
+    state.settings.urbanShare = Number(fd.get('urbanShare'));
+    state.settings.consoRef = num(fd.get('consoRef')) || null;
     save(); render(); toast('Réglages enregistrés — pense à retélécharger le fichier agenda');
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'import-file') importJSON(e.target.files[0]); });

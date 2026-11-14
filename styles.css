@@ -168,3 +168,12 @@ details summary { cursor: pointer; font-weight: 600; }
 .bar i { display: block; width: 100%; max-width: 26px; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; }
 .bar span { font-size: .7rem; color: var(--muted); text-transform: uppercase; }
 .tabs button { min-width: 0; }
+.advice { border-radius: var(--radius); padding: 12px 14px; margin: 10px 0; border: 1px solid var(--border); border-left-width: 5px; background: var(--surface); }
+.advice p { margin: 6px 0; }
+.advice details { margin-top: 6px; }
+.adv-title { font-weight: 700; }
+.adv-bad { border-left-color: var(--bad); background: var(--bad-bg); }
+.adv-warn { border-left-color: var(--soon); background: var(--soon-bg); }
+.adv-data { border-left-color: var(--unk); background: var(--unk-bg); }
+.adv-info { border-left-color: var(--accent); }
+input[type="range"] { padding: 0; accent-color: var(--accent); }

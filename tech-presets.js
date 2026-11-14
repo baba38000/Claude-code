@@ -9,6 +9,8 @@ window.TECH_PRESETS = [
   {
     label: 'Renault Vel Satis 2.0 dCi 175 FAP (M9R) — BVM6',
     match: ['vel', '2.0'],
+    // Consommations de référence approximatives (homologation ≈ 9 L ville / 5,8 L route) : sert aux conseils
+    conso: { urban: 9.0, road: 5.8 },
     // Plan « Recommandé » (plus strict que le constructeur : âge, km, FAP)
     plan: {
       'vidange': { intervalKm: 10000, intervalMonths: 12, parts: 'Huile 5W30 ACEA C4, norme Renault RN0720 (compatible FAP) — ex. Elf Evolution 900 DID 5W30, Total Quartz Ineo MC3/RCP 5W30 (vérifier « RN0720 » sur le bidon). Prévoir 7 L (capacité à confirmer, voir Doc technique). Filtre à huile MANN HU 618 x (équiv. Purflux L470). Joint de bouchon de vidange.' },

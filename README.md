@@ -16,6 +16,16 @@ Appli web (PWA, installable sur téléphone) pour suivre l'entretien de ta voitu
 - **Check-up mensuel** : une checklist (pneus, niveaux, éclairage, voyants, bruits, fuites…). Les points à surveiller remontent sur l'accueil.
 - **Factures & documents** : photos et PDF classés par catégorie (pièces, garage, CT, achat, assurance…), avec montant et lien vers l'intervention.
 - **📘 Doc technique** : liquides et capacités, références de pièces d'origine et leurs équivalences, couples de serrage, pneus, ampoules et batterie. Recherche intégrée, fiches constructeur dans `tech-presets.js`.
+- **💡 Conseils automatiques**, affichés **uniquement quand un chiffre sort de la normale** (rien sinon). Ils tiennent compte de la part de conduite en ville (réglable, 80 % pour la Vel Satis) :
+  - consommation trop haute par rapport à l'attendu pour ton usage, ou en hausse sur les derniers pleins ;
+  - consommation improbable (souvent un plein partiel coché « complet » ou une faute de km) ;
+  - dernier plein payé cher, ou station habituelle plus chère qu'une autre, avec l'économie estimée sur 12 mois ;
+  - diesel à FAP avec peu de km et beaucoup de ville (risque de colmatage et de dilution de l'huile), batterie si très peu de km, échéances rapprochées pour un gros rouleur ;
+  - intervalle de vidange trop long pour un usage urbain ;
+  - pièce remplacée bien avant l'intervalle prévu (usure anormale), avec la cause probable et l'intervalle à ajuster ;
+  - entretien nettement en retard ;
+  - même point signalé à deux check-ups de suite (pression, huile, liquide de refroidissement…) ;
+  - kilométrage incohérent dans les saisies.
 - **Rappels** :
   - 📆 **Fichier agenda (.ics)** : rappel récurrent du relevé km (hebdo ou mensuel) et du check-up mensuel, plus un événement par entretien à venir, avec une alerte 2 semaines avant. C'est la solution la plus fiable, sur iPhone comme sur Android.
   - 🔔 Notifications du navigateur à l'ouverture de l'appli, et en arrière-plan sur Android/Chrome quand l'appli est installée.

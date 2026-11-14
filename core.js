@@ -394,6 +394,11 @@
       if (ex) Object.assign(ex, add);
       else state.plan.push(Object.assign({ enabled: true, custom: true }, add));
     }
+    if (p.conso) {
+      state.settings = state.settings || {};
+      state.settings.consoUrban = p.conso.urban;
+      state.settings.consoRoad = p.conso.road;
+    }
     state.presetLabel = p.label;
     return state;
   }

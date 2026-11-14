@@ -35,6 +35,7 @@ s.logs = [
     itemIds: [], cost: null, vendor: '', parts: '', notes: 'Date approximative (« l\'année dernière »). Noter marque et DOT des pneus.' },
 ];
 s.settings.readingFreq = 'weekly';
+s.settings.urbanShare = 80;
 
 const out = { app: 'carnet-auto', exportedAt: new Date().toISOString(), state: s, files: [] };
 fs.writeFileSync(path.join(__dirname, '..', 'demarrage-vel-satis.json'), JSON.stringify(out, null, 1));
