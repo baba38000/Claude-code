@@ -1,5 +1,7 @@
 # 🚗 Carnet Auto
 
+> 🍻 Voir aussi **[Carnet de Bar](bar/)** (dossier `bar/`) : caisse, carte et prix (règle des ×3), stock, achats, charges et résultat du mois.
+
 Appli web (PWA, installable sur téléphone) pour suivre l'entretien de ta voiture et en faire le maximum toi-même.
 
 ## Fonctionnalités
