@@ -160,3 +160,23 @@ test('bilan du mois : recettes − achats − charges', () => {
   assert.strictEqual(C.round2(r.result), 74.17);
   assert.strictEqual(r.byCat.loyer, 100);
 });
+
+test('stock des photos : fusion, quantités, et carte au-dessus de ×3', () => {
+  const PS = require('../stock-photos.js');
+  const s = st(0.1);
+  s.products.find((p) => p.id === 'p-gin').priceHistory = [{ date: '2026-11-01', from: 17, to: 15.5 }];
+  s.products.find((p) => p.id === 'p-gin').packPrice = 15.5;
+  const n = s.products.length;
+  const inv = C.mergeStockPreset(s, PS.build());
+  const gin = s.products.find((p) => p.id === 'p-gin');
+  assert.strictEqual(gin.name, 'Gin Gordon\'s 70 cl');
+  assert.strictEqual(gin.packPrice, 15.5); // prix corrigé conservé
+  assert.strictEqual(gin.stock, 196);
+  assert.strictEqual(s.products.find((p) => p.id === 'p-biere-btl').stock, 8);
+  assert.ok(inv.lines.length > 30);
+  // deuxième chargement : pas de doublon
+  C.mergeStockPreset(s, PS.build());
+  assert.strictEqual(s.products.length, n + PS.build().products.filter((p) => !require('../starter.js').build().products.some((q) => q.id === p.id)).length);
+  const bad = C.analyzeMenu(s).filter((a) => a.status === 'low' || a.status === 'unknown');
+  assert.deepStrictEqual(bad.map((a) => a.item.name), []);
+});

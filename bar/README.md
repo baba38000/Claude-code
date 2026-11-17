@@ -47,6 +47,11 @@ Elle contient les doses bar standard :
 
 Les **prix d'achat sont indicatifs** : remplace-les par ceux de tes factures. Les cocktails s'ajoutent avec leur recette dans 🍸 Carte → ＋ Article. Les produits de base (rhum, gin, vodka, sucre de canne, citron vert, menthe, eau gazeuse, tonic, prosecco, Apérol) sont déjà dans le stock.
 
+## 📸 Stock relevé sur photos
+Le bouton **« 📸 Charger le stock des photos »** (Accueil ou Stock) charge le stock relevé sur les photos du 17/11/2026 : plus de 40 produits avec leurs marques, leurs quantités en bouteilles et les articles de carte correspondants. Le fichier source est `stock-photos.js`.
+- Les produits marqués **« à vérifier »** ont été comptés malgré le miroir du fond des étagères ou une bouteille cachée. Recompte-les avec 📋 Inventaire.
+- Les prix d'achat sont indicatifs. Un prix corrigé à la main est conservé si tu recharges le relevé.
+
 ## Utilisation
 L'appli est en ligne avec Carnet Auto, à l'adresse `https://<utilisateur>.github.io/<dépôt>/bar/`. Ouvre-la sur ton téléphone puis choisis **Ajouter à l'écran d'accueil**.
 

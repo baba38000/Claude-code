@@ -96,15 +96,21 @@
   }
 
   const actions = {
+    loadPhotoStock: () => {
+      if (state.settings.photoStockLoaded && !confirm('Le stock des photos a déjà été chargé. Le recharger remet les quantités relevées sur les photos (tes prix corrigés sont conservés). Continuer ?')) return;
+      if (!state.products.length) addStarter();
+      const inv = C.mergeStockPreset(state, window.BarPhotoStock.build());
+      if (!state.settings.overhead) state.settings.overhead = 0.1;
+      state.settings.photoStockLoaded = todayISO();
+      save(); tab = 'stock'; render(); window.scrollTo(0, 0);
+      toast(`📸 ${inv.lines.length} produits chargés depuis les photos. Vérifie ceux marqués « à vérifier »`);
+    },
     loadStarter: () => {
       if ((state.items.length || state.products.length) && !confirm('Ajouter la carte de départ ? Les articles et produits déjà présents avec le même identifiant seront remplacés.')) return;
-      const b = window.BarStarter.build();
-      const ids = new Set(b.products.map((p) => p.id).concat(b.items.map((i) => i.id)));
-      state.products = state.products.filter((p) => !ids.has(p.id)).concat(b.products);
-      state.items = state.items.filter((i) => !ids.has(i.id)).concat(b.items);
-      if (!state.settings.overhead) state.settings.overhead = 0.1;
+      addStarter();
       save(); render(); toast('Carte de départ chargée : remplace les prix d\'achat par ceux de tes factures');
     },
+
     goto: (el) => { tab = el.dataset.v; render(); window.scrollTo(0, 0); },
     // --- Caisse ---
     posCat: (el) => { posCat = el.dataset.v; render(); },
@@ -159,6 +165,17 @@
     forceUpdate: () => forceUpdate(),
   };
 
+  function addStarter() {
+    const b = window.BarStarter.build();
+    const ids = new Set(b.products.map((p) => p.id).concat(b.items.map((i) => i.id)));
+    state.products = state.products.filter((p) => !ids.has(p.id)).concat(b.products);
+    state.items = state.items.filter((i) => !ids.has(i.id)).concat(b.items);
+    if (!state.settings.overhead) state.settings.overhead = 0.1;
+  }
+  const photoBtn = () => (state.settings.photoStockLoaded ? '' : `<div class="card rule"><b>📸 Ton stock relevé sur tes photos est prêt</b>
+    <p class="small muted">Plus de 40 produits avec tes marques (Bacardi, Smirnoff, Gordon's, Campari, Apérol, Ricard, sirops Teisseire, Moretti, vins…), leurs quantités et les articles de carte correspondants, tous à au moins ×3.</p>
+    <div class="btns"><button class="btn primary" data-action="loadPhotoStock">📸 Charger le stock des photos</button></div></div>`);
+
   // ================= Accueil =================
   function viewDashboard() {
     if (!state.items.length && !state.products.length) {
@@ -166,7 +183,8 @@
         <h2>Bienvenue dans ton Carnet de Bar 🍻</h2>
         <p>Tout ton bar au même endroit : la <b>caisse</b> (chaque verre servi décompte le stock), la <b>carte</b> avec le coût réel de chaque boisson et le prix minimum pour le vendre <b>au moins 3 fois son coût</b>, le <b>stock</b>, les <b>achats</b> fournisseurs et la liste des <b>choses à faire</b>.</p>
         <p class="small muted">Coût d'un verre = doses de matière première (pertes comprises) + charge du bar par verre. Prix de vente minimum = 3 × ce coût. Exemple : pinte à 1,50 € de coût → 4,50 € minimum.</p>
-        <div class="btns"><button class="btn primary" data-action="loadStarter">🍺 Charger la carte de départ</button>
+        ${photoBtn()}
+        <div class="btns"><button class="btn" data-action="loadStarter">🍺 Charger seulement la carte de départ</button>
         <button class="btn" data-action="addProduct">Partir de zéro</button>
         <button class="btn" data-action="importJSON">📥 Restaurer une sauvegarde</button></div>
         <p class="small muted">La carte de départ contient les doses bar classiques (pastis 2 cl, Martini 6 cl, alcools forts 4 cl, demi 25 cl, pinte 50 cl, verre de vin 12 cl, softs…) et des prix d'achat <b>indicatifs</b> à remplacer par ceux de tes factures. Les cocktails sont à ajouter avec tes recettes.</p>
@@ -484,14 +502,15 @@
         <div class="stat"><b>${low.length}</b><span>à commander</span></div>
         <div class="stat"><b>${lastInv ? esc(fdate(lastInv.date)) : '—'}</b><span>dernier inventaire</span></div>
       </div>
+      ${photoBtn()}
       <div class="btns"><button class="btn" data-action="inventory">📋 Faire l'inventaire</button><button class="btn" data-action="order">🛒 Bon de commande</button><button class="btn" data-action="addPurchase">🚚 Saisir une livraison</button></div>
       <p class="small muted">Stock théorique : il baisse à chaque verre encaissé, monte à chaque livraison, et se recale à chaque inventaire.</p>
       ${adviceSection((a) => a.tab === 'stock')}
-      ${lastInv && lastInv.lines.some((l) => l.diff) ? `<details class="card"><summary>Écarts du dernier inventaire : ${eur(lastInv.total)}</summary>${lastInv.lines.filter((l) => l.diff).map((l) => `<div class="row line small"><span>${esc(l.name)}</span><span class="${l.value < 0 ? 'bad' : ''}">${l.diff > 0 ? '+' : ''}${nf.format(l.diff)} → ${eur(l.value)}</span></div>`).join('')}</details>` : ''}
+      ${lastInv && !lastInv.initial && lastInv.lines.some((l) => l.diff) ? `<details class="card"><summary>Écarts du dernier inventaire : ${eur(lastInv.total)}</summary>${lastInv.lines.filter((l) => l.diff).map((l) => `<div class="row line small"><span>${esc(l.name)}</span><span class="${l.value < 0 ? 'bad' : ''}">${l.diff > 0 ? '+' : ''}${nf.format(l.diff)} → ${eur(l.value)}</span></div>`).join('')}</details>` : ''}
       ${Object.entries(groups).map(([c, ps]) => `<h3 class="group">${esc(catLabel(c))}</h3><div class="card">${ps.map((p) => {
         const st = C.stockStatus(p); const uc = C.unitCost(p);
         return `<div class="item" data-action="editProduct" data-id="${esc(p.id)}"><div class="item-main">
-          <div class="item-title">${esc(p.name)}${p.active === false ? ' <span class="tag">inactif</span>' : ''}</div>
+          <div class="item-title">${esc(p.name)}${p.active === false ? ' <span class="tag">inactif</span>' : ''}${p.toCheck ? ' <span class="tag">à vérifier</span>' : ''}</div>
           <div class="item-meta">${fmtStock(p)}</div>
           <div class="item-meta">${eur(p.packPrice)} HT / ${esc(p.packLabel || 'cond.')} · ${uc != null ? eur3(uc) + ' / ' + unitLabel(p.unit) : '—'}${p.lossPct ? ` (perte ${nf.format(p.lossPct)} %)` : ''}${p.supplier ? ' · ' + esc(p.supplier) : ''}</div>
         </div>${st !== 'ok' ? `<span class="badge ${st === 'out' ? 'b-bad' : 'b-soon'}">${st === 'out' ? 'Rupture' : 'Bas'}</span>` : ''}</div>`;
@@ -530,7 +549,7 @@
         supplier: fd.get('supplier').trim(), active: !!fd.get('active') };
       if (id) {
         if (newPrice != null && Number(p.packPrice) !== newPrice) (p.priceHistory = p.priceHistory || []).push({ date: todayISO(), from: Number(p.packPrice) || null, to: newPrice });
-        Object.assign(p, data, { packPrice: newPrice });
+        Object.assign(p, data, { packPrice: newPrice }); delete p.toCheck;
       } else state.products.push(Object.assign({ id: 'p-' + C.uid(), priceHistory: [] }, data, { packPrice: newPrice }));
       save();
     }, {
@@ -566,6 +585,7 @@
       }
       if (!Object.keys(counts).length) { toast('Rien de compté'); return false; }
       const inv = C.saveInventory(state, fd.get('date') || todayISO(), counts);
+      for (const pid of Object.keys(counts)) { const p = state.products.find((x) => x.id === pid); if (p) delete p.toCheck; }
       const t = state.tasks.find((x) => x.cat === 'stock' && /inventaire/i.test(x.title));
       if (t) t.lastDone = todayISO();
       save();

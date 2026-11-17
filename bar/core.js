@@ -402,6 +402,36 @@
       .sort((a, b) => a.due - b.due);
   }
 
+  // ---------- Import d'un relevé de stock (photos) ----------
+  // Fusionne produits et articles par identifiant, puis enregistre un inventaire avec les quantités relevées.
+  // Un prix d'achat déjà corrigé par l'utilisateur (historique) ou un prix de vente déjà modifié est conservé.
+  function mergeStockPreset(state, preset) {
+    const pm = productMap(state);
+    const counts = {};
+    for (const src of preset.products) {
+      const { _qty, _check, ...data } = src;
+      const ex = pm.get(src.id);
+      if (ex) {
+        const keepPrice = (ex.priceHistory || []).length > 0;
+        const keep = { stock: ex.stock, priceHistory: ex.priceHistory || [], minStock: ex.minStock, parStock: ex.parStock };
+        Object.assign(ex, data, keep, keepPrice ? { packPrice: ex.packPrice } : {});
+        ex.toCheck = !!_check;
+      } else {
+        state.products.push(Object.assign({ stock: 0, priceHistory: [], toCheck: !!_check }, data));
+      }
+      if (_qty != null) counts[src.id] = _qty;
+    }
+    const edited = new Set((state.priceLog || []).map((x) => x.itemId));
+    for (const it of preset.items) {
+      const ex = state.items.find((i) => i.id === it.id);
+      if (ex) { ex.name = it.name; ex.recipe = it.recipe; if (!edited.has(ex.id)) ex.price = it.price; }
+      else state.items.push(JSON.parse(JSON.stringify(it)));
+    }
+    const inv = saveInventory(state, preset.date, counts);
+    inv.initial = true; // stock de départ : pas un écart à analyser
+    return inv;
+  }
+
   // ---------- Compta : charges, revenus, résultat du mois ----------
   const CHARGE_CATS = {
     loyer: '🏠 Loyer', electricite: '⚡ Électricité', eau: '💧 Eau', gaz: '🔥 Gaz', salaires: '👥 Salaires & charges sociales',
@@ -492,7 +522,7 @@
     }
 
     // Écart d'inventaire
-    const inv = (state.inventories || []).slice().sort((a, b) => a.date.localeCompare(b.date)).pop();
+    const inv = (state.inventories || []).filter((x) => !x.initial).sort((a, b) => a.date.localeCompare(b.date)).pop();
     if (inv && inv.date >= toISO(addDays(ref, -14))) {
       const neg = inv.lines.filter((l) => l.value < -5).sort((a, b) => a.value - b.value);
       const tot = neg.reduce((s, l) => s + l.value, 0);
@@ -528,6 +558,6 @@
     stockValue, stockStatus, lowStock, orderList, recordSale, deleteSale, savePurchase, deletePurchase, saveInventory,
     summarize, salesOfDay, salesBetween, currentDay, topItems, byCategory, byHour, dailySeries, closingFor,
     taskDue, taskStatus, todoList, advice, productMap,
-    CHARGE_CATS, chargeInMonth, chargeMonthlyAvg, fixedChargesPerMonth, monthReport, breakEven, monthKey,
+    mergeStockPreset, CHARGE_CATS, chargeInMonth, chargeMonthlyAvg, fixedChargesPerMonth, monthReport, breakEven, monthKey,
   };
 });

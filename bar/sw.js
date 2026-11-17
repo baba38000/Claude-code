@@ -1,6 +1,6 @@
 /* Carnet de Bar — service worker : fonctionne hors-ligne (réseau d'abord, cache en secours) */
-const CACHE = 'carnet-bar-v1';
-const ASSETS = ['./', 'index.html', 'styles.css', 'core.js', 'starter.js', 'app.js', 'manifest.webmanifest', 'icon.svg'];
+const CACHE = 'carnet-bar-v2';
+const ASSETS = ['./', 'index.html', 'styles.css', 'core.js', 'starter.js', 'stock-photos.js', 'app.js', 'manifest.webmanifest', 'icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
