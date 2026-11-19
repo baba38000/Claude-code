@@ -149,15 +149,16 @@
       if (isDieselFap && u >= 0.6 && kpm < 900) {
         add({ id: 'fap-city', level: 'warn', title: 'Usage très urbain pour un diesel à FAP',
           text: `${nf(kpm)} km/mois mesurés avec ${Math.round(u * 100)} % de ville : le filtre à particules a peu d'occasions de se régénérer complètement. C'est la première cause de panne coûteuse (FAP colmaté, EGR encrassée, huile diluée) sur ce type de moteur.`,
-          tips: ['Un trajet de 20–30 min sur voie rapide, moteur chaud, tous les 10–15 jours (≥ 2 500 tr/min par moments, en 4e/5e).', 'Ne coupe pas le moteur si le ventilateur tourne fort juste après un trajet : c\'est souvent une régénération en cours.', 'Contrôle la jauge d\'huile toutes les 2 semaines : si elle MONTE, fais la vidange en avance.', 'Garde la vidange à 10 000 km / 1 an maximum.'] });
+          tips: ['Un trajet de 20–30 min sur voie rapide, moteur chaud, tous les 10–15 jours (≥ 2 500 tr/min par moments, en 4e/5e).', 'Ne coupe pas le moteur si le ventilateur tourne fort juste après un trajet : c\'est souvent une régénération en cours.', 'Contrôle la jauge d\'huile toutes les 2 semaines : si elle MONTE, fais la vidange en avance.', 'Respecte l\'intervalle de vidange (15 000 km / 1 an) et avance-la si le niveau d\'huile monte.'] });
       }
       if (kpm < 400) {
         add({ id: 'battery-low-use', level: 'info', title: 'Très peu de kilomètres : attention à la batterie',
           text: `${nf(kpm)} km/mois en moyenne. Des trajets courts ne rechargent pas la batterie (la carte mains-libres, l'alarme et les calculateurs consomment à l'arrêt). Mesure-la au multimètre : sous 12,4 V moteur arrêté, branche un chargeur/mainteneur une nuit de temps en temps.` });
       }
+      const vidKm = Number(((state.plan || []).find((p) => p.id === 'vidange') || {}).intervalKm) || 15000;
       if (kpm > 2500) {
         add({ id: 'high-use', level: 'info', title: 'Gros rouleur : les échéances vont vite',
-          text: `${nf(kpm)} km/mois : une vidange à 10 000 km arrive tous les ${Math.max(1, Math.round(10000 / kpm))} mois. Passe tes relevés en hebdomadaire et contrôle huile et pneus toutes les 2 semaines.` });
+          text: `${nf(kpm)} km/mois : avec une vidange tous les ${nf(vidKm)} km, elle revient tous les ${Math.max(1, Math.round(vidKm / kpm))} mois. Passe tes relevés en hebdomadaire et contrôle huile et pneus toutes les 2 semaines.` });
       }
     }
 
@@ -165,7 +166,7 @@
     const vid = (state.plan || []).find((p) => p.id === 'vidange' && p.enabled !== false);
     if (vid && u >= 0.6 && Number(vid.intervalKm) > 15000) {
       add({ id: 'plan-severe', level: 'warn', title: 'Intervalle de vidange trop long pour ton usage',
-        text: `Ton plan prévoit une vidange tous les ${nf(vid.intervalKm)} km, mais ${Math.round(u * 100)} % de ville = « conditions sévères » pour les constructeurs (trajets courts, moteur souvent froid). Passe à 10 000 km ou 1 an.`, item: 'vidange' });
+        text: `Ton plan prévoit une vidange tous les ${nf(vid.intervalKm)} km, mais ${Math.round(u * 100)} % de ville = « conditions sévères » pour les constructeurs (trajets courts, moteur souvent froid). Reste à 15 000 km maximum (10 000 km si le niveau d\'huile monte) et 1 an.`, item: 'vidange' });
     }
 
     // ---------- 5. Pièces qui s'usent plus vite que prévu ----------

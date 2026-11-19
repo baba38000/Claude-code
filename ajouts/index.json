@@ -9,6 +9,16 @@
    "file": "ajouts/ct-2026-11-19.json",
    "title": "Contrôle technique du 19/11/2026 (Autosur)",
    "description": "Le CT (favorable, 6 défaillances mineures), la photo du PV dans Factures, les défauts à traiter avec explications, l'historique des km relevés aux CT depuis 2018 et la fiche « Disques de frein avant »."
+  },
+  {
+   "id": "vidange-15000",
+   "match": [
+    "renault",
+    "vel"
+   ],
+   "file": "ajouts/vidange-15000.json",
+   "title": "Vidange tous les 15 000 km (au lieu de 10 000)",
+   "description": "Passe la vidange + filtre à huile et le diagnostic FAP/EGR à 15 000 km ou 1 an (le premier atteint). Préconisation constructeur : 20 000 km."
   }
  ]
 }

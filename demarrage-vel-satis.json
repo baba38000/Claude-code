@@ -1,6 +1,6 @@
 {
  "app": "carnet-auto",
- "exportedAt": "2026-11-19T13:54:24.271Z",
+ "exportedAt": "2026-11-19T13:58:15.504Z",
  "state": {
   "version": 1,
   "vehicle": {
@@ -187,7 +187,7 @@
    {
     "id": "vidange",
     "enabled": true,
-    "intervalKm": 10000,
+    "intervalKm": 15000,
     "intervalMonths": 12,
     "key": "vidange",
     "name": "Vidange huile moteur + filtre à huile",
@@ -285,7 +285,7 @@
     "category": "Moteur",
     "difficulty": "pro",
     "parts": "—",
-    "tips": "Moteur M9R à chaîne : pas de remplacement périodique. Écouter un cliquetis au démarrage à froid (chaîne allongée) → faire contrôler. Une huile non conforme ou vidangée trop tard use la chaîne : respecter la RN0720 et les 10 000 km.",
+    "tips": "Moteur M9R à chaîne : pas de remplacement périodique. Écouter un cliquetis au démarrage à froid (chaîne allongée) → faire contrôler. Une huile non conforme ou vidangée trop tard use la chaîne : respecter la RN0720 et l'intervalle de vidange (15 000 km / 1 an).",
     "kind": "check"
    },
    {
@@ -295,7 +295,7 @@
     "name": "Diagnostic FAP / EGR (valise)",
     "category": "Moteur",
     "kind": "check",
-    "intervalKm": 10000,
+    "intervalKm": 15000,
     "intervalMonths": 12,
     "difficulty": "pro",
     "parts": "—",

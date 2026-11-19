@@ -490,6 +490,10 @@
     }
     state.plan = state.plan || [];
     for (const it of add.planItems || []) if (!state.plan.some((p) => p.id === it.id)) { state.plan.push(Object.assign({ enabled: true, custom: true }, it)); n++; }
+    for (const [pid, upd] of Object.entries(add.planUpdates || {})) {
+      const it = state.plan.find((p) => p.id === pid);
+      if (it) { Object.assign(it, upd); n++; }
+    }
     if (add.vehicle && state.vehicle) {
       for (const [k, v] of Object.entries(add.vehicle)) if (state.vehicle[k] == null || state.vehicle[k] === '') state.vehicle[k] = v;
     }

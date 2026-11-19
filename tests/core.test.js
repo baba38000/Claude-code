@@ -89,7 +89,7 @@ test('fiche Vel Satis : plan ajusté + éléments ajoutés + données de départ
   s.vehicle.timing = 'chaine';
   s.plan = C.defaultPlan(s.vehicle);
   C.applyPreset(s, p);
-  assert.strictEqual(s.plan.find((i) => i.id === 'vidange').intervalKm, 10000);
+  assert.strictEqual(s.plan.find((i) => i.id === 'vidange').intervalKm, 15000);
   assert.ok(s.plan.some((i) => i.id === 'diag-fap'));
   assert.ok(s.tech.length > 30);
   const start = require('../demarrage-vel-satis.json');
@@ -129,4 +129,15 @@ test('ajout CT : fusion sans doublon, CT suivant en 2028, moyenne km basée sur 
   // l'historique de l'ancien propriétaire (2018…) ne fausse pas la moyenne
   assert.ok(Math.abs(C.kmPerDay(s) * 30.44 - 1000) > 1); // historique récent utilisé
   assert.ok(s.issues.some((i) => i.id === 'iss-ct-direction' && i.priority === 'high'));
+});
+
+test('ajout vidange 15 000 km : met à jour un plan existant', () => {
+  const s = JSON.parse(JSON.stringify(require('../demarrage-vel-satis.json').state));
+  s.plan.find((i) => i.id === 'vidange').intervalKm = 10000;
+  C.mergeData(s, require('../ajouts/vidange-15000.json').add);
+  const vid = s.plan.find((i) => i.id === 'vidange');
+  assert.strictEqual(vid.intervalKm, 15000);
+  assert.strictEqual(vid.intervalMonths, 12);
+  // dernière vidange 189 200 km → prochaine à 204 200 km
+  assert.strictEqual(C.itemStatus(s, vid, C.parseDate('2026-11-19')).dueKm, 204200);
 });

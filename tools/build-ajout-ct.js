@@ -80,9 +80,12 @@ const add = {
 
 const patch = { app: 'carnet-auto', kind: 'ajout', id: 'ct-2026-11-19', add, files };
 fs.writeFileSync(path.join(outDir, 'ct-2026-11-19.json'), JSON.stringify(patch));
-fs.writeFileSync(path.join(outDir, 'index.json'), JSON.stringify({
-  patches: [{ id: 'ct-2026-11-19', match: ['renault', 'vel'], file: 'ajouts/ct-2026-11-19.json',
+// Ajoute / met à jour l'entrée dans ajouts/index.json sans toucher aux autres
+const idxPath = path.join(outDir, 'index.json');
+const idx = fs.existsSync(idxPath) ? JSON.parse(fs.readFileSync(idxPath, 'utf8')) : { patches: [] };
+idx.patches = idx.patches.filter((x) => x.id !== 'ct-2026-11-19');
+idx.patches.unshift({ id: 'ct-2026-11-19', match: ['renault', 'vel'], file: 'ajouts/ct-2026-11-19.json',
     title: 'Contrôle technique du 19/11/2026 (Autosur)',
-    description: 'Le CT (favorable, 6 défaillances mineures), la photo du PV dans Factures, les défauts à traiter avec explications, l\'historique des km relevés aux CT depuis 2018 et la fiche « Disques de frein avant ».' }],
-}, null, 1));
+    description: 'Le CT (favorable, 6 défaillances mineures), la photo du PV dans Factures, les défauts à traiter avec explications, l\'historique des km relevés aux CT depuis 2018 et la fiche « Disques de frein avant ».' });
+fs.writeFileSync(idxPath, JSON.stringify(idx, null, 1));
 console.log('OK', files.length ? 'avec photo' : 'sans photo', add.issues.length, 'défauts');

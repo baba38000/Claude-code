@@ -994,7 +994,7 @@
     caches.open('carnet-auto-state').then((c) => c.put('./__summary', new Response(JSON.stringify({ car: carName(), msgs, date: todayISO() }), { headers: { 'Content-Type': 'application/json' } }))).catch(() => {});
   }
 
-  const APP_VERSION = '1.6 (défauts à traiter + ajouts)';
+  const APP_VERSION = '1.7 (vidange 15 000 km)';
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     const hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
