@@ -141,3 +141,11 @@ test('ajout vidange 15 000 km : met à jour un plan existant', () => {
   // dernière vidange 189 200 km → prochaine à 204 200 km
   assert.strictEqual(C.itemStatus(s, vid, C.parseDate('2026-11-19')).dueKm, 204200);
 });
+
+test('ajout FAP : journal + défaut + doc', () => {
+  const s = JSON.parse(JSON.stringify(require('../demarrage-vel-satis.json').state));
+  const n = C.mergeData(s, require('../ajouts/fap-2026-09.json').add);
+  assert.strictEqual(n, 3);
+  const st = C.itemStatus(s, s.plan.find((i) => i.id === 'diag-fap'), C.parseDate('2026-11-19'));
+  assert.strictEqual(C.toISO(st.dueDate), '2027-09-15');
+});
