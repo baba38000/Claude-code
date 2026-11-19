@@ -114,3 +114,19 @@ test('pleins : complétion des valeurs, prix moyen pondéré, conso plein à ple
   // un plein avec km compte comme relevé
   assert.strictEqual(C.monthlyCheckDue(s, C.parseDate('2026-01-25')).due, false);
 });
+
+test('ajout CT : fusion sans doublon, CT suivant en 2028, moyenne km basée sur l\'achat', () => {
+  const s = JSON.parse(JSON.stringify(require('../demarrage-vel-satis.json').state));
+  s.vehicle.purchaseDate = '2026-11-15';
+  s.vehicle.purchaseKm = 195200;
+  const p = require('../ajouts/ct-2026-11-19.json');
+  const n = C.mergeData(s, p.add);
+  assert.ok(n >= 14);
+  assert.strictEqual(C.mergeData(s, p.add), 0); // 2e application : rien
+  const ct = s.plan.find((i) => i.id === 'ct');
+  const st = C.itemStatus(s, ct, C.parseDate('2026-11-19'));
+  assert.strictEqual(C.toISO(st.dueDate), '2028-11-19');
+  // l'historique de l'ancien propriétaire (2018…) ne fausse pas la moyenne
+  assert.ok(Math.abs(C.kmPerDay(s) * 30.44 - 1000) > 1); // historique récent utilisé
+  assert.ok(s.issues.some((i) => i.id === 'iss-ct-direction' && i.priority === 'high'));
+});

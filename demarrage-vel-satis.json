@@ -1,6 +1,6 @@
 {
  "app": "carnet-auto",
- "exportedAt": "2026-11-14T15:01:21.263Z",
+ "exportedAt": "2026-11-19T13:54:24.271Z",
  "state": {
   "version": 1,
   "vehicle": {
@@ -375,6 +375,7 @@
   "readings": [],
   "docs": [],
   "fuels": [],
+  "issues": [],
   "tech": [
    {
     "id": "p-0",

@@ -1,0 +1,14 @@
+{
+ "patches": [
+  {
+   "id": "ct-2026-11-19",
+   "match": [
+    "renault",
+    "vel"
+   ],
+   "file": "ajouts/ct-2026-11-19.json",
+   "title": "Contrôle technique du 19/11/2026 (Autosur)",
+   "description": "Le CT (favorable, 6 défaillances mineures), la photo du PV dans Factures, les défauts à traiter avec explications, l'historique des km relevés aux CT depuis 2018 et la fiche « Disques de frein avant »."
+  }
+ ]
+}

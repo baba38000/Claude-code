@@ -16,6 +16,8 @@ Appli web (PWA, installable sur téléphone) pour suivre l'entretien de ta voitu
 - **Check-up mensuel** : une checklist (pneus, niveaux, éclairage, voyants, bruits, fuites…). Les points à surveiller remontent sur l'accueil.
 - **Factures & documents** : photos et PDF classés par catégorie (pièces, garage, CT, achat, assurance…), avec montant et lien vers l'intervention.
 - **📘 Doc technique** : liquides et capacités, références de pièces d'origine et leurs équivalences, couples de serrage, pneus, ampoules et batterie. Recherche intégrée, fiches constructeur dans `tech-presets.js`.
+- **🛠️ Défauts à traiter** : les défaillances relevées au CT ou signalées à l'achat, avec une priorité, l'explication, quoi faire, les pièces et un budget indicatif. Le bouton « Réparé » enregistre l'intervention.
+- **📥 Ajouts de données** : un fichier déposé dans `ajouts/` (et listé dans `ajouts/index.json`) est proposé dans l'appli à la prochaine ouverture. Il s'ajoute aux données sans rien écraser, par exemple le CT du 19/11/2026 (`node tools/build-ajout-ct.js photo.jpg`).
 - **💡 Conseils automatiques**, affichés **uniquement quand un chiffre sort de la normale** (rien sinon). Ils tiennent compte de la part de conduite en ville (réglable, 80 % pour la Vel Satis) :
   - consommation trop haute par rapport à l'attendu pour ton usage, ou en hausse sur les derniers pleins ;
   - consommation improbable (souvent un plein partiel coché « complet » ou une faute de km) ;

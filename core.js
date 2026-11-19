@@ -162,13 +162,21 @@
   function kmPerDay(state) {
     const s = state.settings || {};
     if (s.kmPerMonthOverride) return Number(s.kmPerMonthOverride) / 30.44;
-    const pts = sortedReadings(state);
-    if (pts.length >= 2) {
+    const all = sortedReadings(state);
+    const avg = (pts, minDays) => {
+      if (pts.length < 2) return null;
       const first = pts[0];
       const last = pts[pts.length - 1];
       const days = diffDays(parseDate(last.date), parseDate(first.date));
-      if (days >= 20 && last.km > first.km) return (last.km - first.km) / days;
-    }
+      return days >= minDays && last.km > first.km ? (last.km - first.km) / days : null;
+    };
+    // 1) depuis l'achat (ton usage réel) ; 2) sinon les 13 derniers mois (usage précédent) ; 3) sinon 1 000 km/mois
+    const pd = (state.vehicle || {}).purchaseDate;
+    const since = pd ? avg(all.filter((p) => p.date >= pd), 20) : null;
+    if (since) return since;
+    const recentLimit = toISO(addMonths(today(), -13));
+    const recent = avg(all.filter((p) => p.date >= recentLimit), 60);
+    if (recent) return recent;
     return DEFAULT_KM_PER_MONTH / 30.44;
   }
 
@@ -469,6 +477,25 @@
     };
   }
 
+  /**
+   * Fusionne un lot de données (« ajout ») sans rien écraser : les éléments dont l'id existe déjà sont ignorés.
+   * Retourne le nombre d'éléments ajoutés.
+   */
+  function mergeData(state, add) {
+    let n = 0;
+    for (const key of ['logs', 'readings', 'docs', 'fuels', 'issues', 'tech']) {
+      state[key] = state[key] || [];
+      const ids = new Set(state[key].map((x) => x.id));
+      for (const x of add[key] || []) if (!ids.has(x.id)) { state[key].push(x); n++; }
+    }
+    state.plan = state.plan || [];
+    for (const it of add.planItems || []) if (!state.plan.some((p) => p.id === it.id)) { state.plan.push(Object.assign({ enabled: true, custom: true }, it)); n++; }
+    if (add.vehicle && state.vehicle) {
+      for (const [k, v] of Object.entries(add.vehicle)) if (state.vehicle[k] == null || state.vehicle[k] === '') state.vehicle[k] = v;
+    }
+    return n;
+  }
+
   function defaultState() {
     return {
       version: 1,
@@ -478,6 +505,7 @@
       readings: [],
       docs: [],
       fuels: [],
+      issues: [],
       tech: [],
       settings: { reminderDay: 1, reminderWeekday: 0, readingFreq: 'monthly', kmPerMonthOverride: null, lastNotified: null },
     };
@@ -485,7 +513,7 @@
 
   return {
     parseDate, toISO, today, addMonths, addDays, diffDays, uid,
-    defaultPlan, defaultState, applyPreset, completeFuel, fuelStats, kmPerDay, estimatedKm, lastKnownKm, lastDone,
+    defaultPlan, defaultState, applyPreset, mergeData, completeFuel, fuelStats, kmPerDay, estimatedKm, lastKnownKm, lastDone,
     itemStatus, allStatuses, lastReading, monthlyCheckDue, fullCheckDue, readingPeriod, buildICS, MONTHLY_CHECKS,
   };
 });

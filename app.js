@@ -136,6 +136,7 @@
     $$('[data-reading]', root).forEach((el) => el.addEventListener('click', () => openReadingForm(el.dataset.reading)));
     $$('[data-doc]', root).forEach((el) => el.addEventListener('click', () => openDocForm(el.dataset.doc)));
     $$('[data-fuel]', root).forEach((el) => el.addEventListener('click', () => openFuelForm(el.dataset.fuel)));
+    $$('[data-issue]', root).forEach((el) => el.addEventListener('click', () => openIssue(el.dataset.issue)));
     $$('[data-action]', root).forEach((el) => el.addEventListener('click', (e) => { e.stopPropagation(); actions[el.dataset.action](el); }));
     $$('img[data-thumb]', root).forEach(async (img) => {
       const f = await idb.get(img.dataset.thumb).catch(() => null);
@@ -176,6 +177,8 @@
     docFilter: (el) => { docFilter = el.dataset.v; render(); },
     openFile: (el) => openFile(el.dataset.id),
     forceUpdate: () => forceUpdate(),
+    applyPatch: (el) => applyPatch(el.dataset.id),
+    skipPatch: (el) => { state.settings.appliedPatches = (state.settings.appliedPatches || []).concat(el.dataset.id); save(); render(); },
     addTech: (el) => openTechForm(null, el.dataset.sec),
     editTech: (el) => openTechForm(el.dataset.id),
     loadPreset: () => {
@@ -251,6 +254,12 @@
         ${last.notes ? `<p class="muted small">${esc(last.notes)}</p>` : ''}</div>`;
     }
 
+    html += patchesBanner();
+    const openIssues = (state.issues || []).filter((i) => i.status !== 'done');
+    if (openIssues.length) {
+      const prio = { high: 0, medium: 1, low: 2 };
+      html += `<h2>🛠️ Défauts à traiter (${openIssues.length})</h2><div class="card">${openIssues.slice().sort((a, b) => prio[a.priority || 'medium'] - prio[b.priority || 'medium']).map(issueRow).join('')}</div>`;
+    }
     html += adviceSection();
     html += `<h2>🔧 Pièces à changer</h2><div class="card">${replace.length ? replace.map(itemRow).join('') : '<p class="muted">Rien à changer dans l\'immédiat 👍</p>'}</div>`;
     html += `<h2>🔍 Points à vérifier</h2><div class="card">${check.length ? check.map(itemRow).join('') : '<p class="muted">Rien à vérifier dans l\'immédiat 👍</p>'}</div>`;
@@ -351,7 +360,8 @@
       <div class="filters">${f('all', 'Tout')}${f('avant', ORIGIN_LABEL.avant)}${f('moi', ORIGIN_LABEL.moi)}${f('garage', ORIGIN_LABEL.garage)}</div>
       <p class="small muted">${logs.length} intervention(s) · total ${eur(total)}</p>
       <div class="btns"><button class="btn sm" data-action="addPastLog">📜 Saisir un entretien d'avant l'achat</button></div>
-      <div class="card">${logs.map(logRow).join('') || '<p class="empty">Aucune intervention. Commence par l\'historique de l\'ancien propriétaire (carnet, factures).</p>'}</div>`;
+      <div class="card">${logs.map(logRow).join('') || '<p class="empty">Aucune intervention. Commence par l\'historique de l\'ancien propriétaire (carnet, factures).</p>'}</div>
+      ${(state.issues || []).length ? `<h2>🛠️ Défauts relevés</h2><div class="card">${state.issues.slice().sort((a, b) => (a.status === 'done') - (b.status === 'done') || b.date.localeCompare(a.date)).map(issueRow).join('')}</div>` : ''}`;
   }
   function logRow(l) {
     const names = (l.itemIds || []).map((id) => (state.plan.find((p) => p.id === id) || {}).name).filter(Boolean);
@@ -395,6 +405,78 @@
       <path class="line" d="${d}"/>${pts.map((p) => `<circle class="dot" cx="${x(p.t)}" cy="${y(p.km)}" r="3"/>`).join('')}
       <text x="${P}" y="${H - 5}">${fdate(new Date(t0))}</text><text x="${W - 10}" y="${H - 5}" text-anchor="end">${fdate(new Date(t1))}</text>
       <text x="2" y="${y(k1) + 4}">${Math.round(k1 / 1000)}k</text><text x="2" y="${y(k0) + 4}">${Math.round(k0 / 1000)}k</text></svg>`;
+  }
+
+  // ---------- Défauts à traiter ----------
+  const PRIO = { high: ['b-overdue', 'Prioritaire'], medium: ['b-soon', 'À prévoir'], low: ['b-ok', 'Mineur'] };
+  function issueRow(i) {
+    const [cls, lbl] = PRIO[i.priority || 'medium'];
+    return `<div class="item" data-issue="${esc(i.id)}"><div class="item-main">
+      <div class="item-title">${esc(i.title)}</div>
+      <div class="item-meta">${esc(i.source || '')}${i.date ? ' · ' + fdate(i.date) : ''}${i.difficulty ? ' · ' + (DIFF_LABEL[i.difficulty] || '') : ''}</div>
+    </div><span class="badge ${i.status === 'done' ? 'b-ok' : cls}">${i.status === 'done' ? 'Réglé' : lbl}</span></div>`;
+  }
+  function openIssue(id) {
+    const i = (state.issues || []).find((x) => x.id === id); if (!i) return;
+    modal(`<div class="row"><h2>🛠️ ${esc(i.title)}</h2></div>
+      <p class="muted small">${esc(i.source || '')}${i.date ? ' · ' + fdate(i.date) : ''}${i.detail ? ' · ' + esc(i.detail) : ''}</p>
+      ${i.difficulty ? `<p class="small">${DIFF_LABEL[i.difficulty] || ''}${i.cost ? ' · budget indicatif : ' + esc(i.cost) : ''}</p>` : ''}
+      ${i.why ? `<h3 style="margin-top:12px">Ce que ça veut dire</h3><p class="tips">${esc(i.why)}</p>` : ''}
+      ${i.todo ? `<h3 style="margin-top:12px">Que faire</h3><p class="tips">${esc(i.todo)}</p>` : ''}
+      ${i.parts ? `<h3 style="margin-top:12px">🧩 Pièces</h3><p class="tips">${esc(i.parts)}</p>` : ''}
+      ${i.status === 'done' ? `<p class="small muted">✔ Réglé le ${fdate(i.doneDate)}</p>` : ''}
+      <label>Mes notes</label><textarea name="notes">${esc(i.notes || '')}</textarea>
+      <div class="btns">
+        ${i.status !== 'done' ? '<button type="button" class="btn primary" id="iss-fix">✔ Réparé — enregistrer l\'intervention</button>' : '<button type="button" class="btn" id="iss-reopen">↩ Rouvrir</button>'}
+        ${i.itemId ? '<button type="button" class="btn" id="iss-item">Voir dans le plan</button>' : ''}
+      </div>`,
+    (fd) => { i.notes = fd.get('notes'); save(); }, {
+      onOpen: (form) => {
+        const fix = $('#iss-fix', form), reo = $('#iss-reopen', form), itb = $('#iss-item', form);
+        if (fix) fix.onclick = () => { i.status = 'done'; i.doneDate = todayISO(); save(); openLogForm(null, { title: i.title, itemIds: i.itemId ? [i.itemId] : [], origin: i.difficulty === 'pro' ? 'garage' : 'moi', notes: 'Défaut ' + (i.source || '') + ' : ' + (i.detail || i.title) }); };
+        if (reo) reo.onclick = () => { i.status = 'open'; i.doneDate = null; save(); $('#modal').close(); render(); };
+        if (itb) itb.onclick = () => openItem(i.itemId);
+      },
+      onDelete: () => { state.issues = state.issues.filter((x) => x.id !== id); save(); },
+    });
+  }
+
+  // ---------- Ajouts de données (fichiers dans ajouts/) ----------
+  let patches = [];
+  async function loadPatches() {
+    if (location.protocol === 'file:') return;
+    try {
+      const res = await fetch('ajouts/index.json', { cache: 'no-store' });
+      if (!res.ok) return;
+      patches = (await res.json()).patches || [];
+      if (tab === 'dashboard') render();
+    } catch (e) { /* hors-ligne */ }
+  }
+  function pendingPatches() {
+    if (!state.vehicle) return [];
+    const done = new Set(state.settings.appliedPatches || []);
+    const hay = [state.vehicle.brand, state.vehicle.model].join(' ').toLowerCase();
+    return patches.filter((p) => !done.has(p.id) && (p.match || []).every((m) => hay.includes(m)));
+  }
+  function patchesBanner() {
+    const ps = pendingPatches();
+    if (!ps.length) return '';
+    return ps.map((p) => `<div class="card alert"><h3>📥 Nouvelles infos à ajouter</h3><p><b>${esc(p.title)}</b></p><p class="small">${esc(p.description || '')}</p>
+      <p class="small muted">Rien n'est effacé : les infos sont ajoutées à tes données.</p>
+      <div class="btns"><button class="btn primary" data-action="applyPatch" data-id="${esc(p.id)}">Ajouter</button><button class="btn" data-action="skipPatch" data-id="${esc(p.id)}">Ignorer</button></div></div>`).join('');
+  }
+  async function applyPatch(id) {
+    const p = patches.find((x) => x.id === id); if (!p) return;
+    try {
+      const data = await (await fetch(p.file, { cache: 'no-store' })).json();
+      for (const f of data.files || []) {
+        const bin = Uint8Array.from(atob(f.data), (c) => c.charCodeAt(0));
+        await idb.put({ id: f.id, name: f.name, type: f.type, size: f.size, blob: new Blob([bin], { type: f.type }) });
+      }
+      const n = C.mergeData(state, data.add || {});
+      state.settings.appliedPatches = (state.settings.appliedPatches || []).concat(id);
+      save(); render(); toast(`${n} élément(s) ajouté(s) ✔`);
+    } catch (e) { toast('Ajout impossible : ' + e.message); }
   }
 
   // ---------- Conseils ----------
@@ -912,7 +994,7 @@
     caches.open('carnet-auto-state').then((c) => c.put('./__summary', new Response(JSON.stringify({ car: carName(), msgs, date: todayISO() }), { headers: { 'Content-Type': 'application/json' } }))).catch(() => {});
   }
 
-  const APP_VERSION = '1.5 (pleins + conseils)';
+  const APP_VERSION = '1.6 (défauts à traiter + ajouts)';
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     const hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
@@ -934,6 +1016,7 @@
   }
 
   render();
+  loadPatches();
   publishSummaryForSW();
   notifyIfNeeded();
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); notifyIfNeeded(); } });
