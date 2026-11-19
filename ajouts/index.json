@@ -21,14 +21,14 @@
    "description": "Passe la vidange + filtre à huile et le diagnostic FAP/EGR à 15 000 km ou 1 an (le premier atteint). Préconisation constructeur : 20 000 km."
   },
   {
-   "id": "fap-2026-09",
+   "id": "fap-2026-09-preventif",
    "match": [
     "renault",
     "vel"
    ],
-   "file": "ajouts/fap-2026-09.json",
-   "title": "FAP débouché en septembre 2026",
-   "description": "Ajoute le décolmatage du FAP au journal (il compte comme dernier diagnostic FAP/EGR), un point « Surveiller que le FAP ne se recolmate pas » dans les défauts à traiter, et une ligne « Historique FAP » dans la doc technique."
+   "file": "ajouts/fap-2026-09-preventif.json",
+   "title": "FAP : nettoyage préventif en septembre 2026",
+   "description": "Note le nettoyage préventif du FAP fait par le vendeur dans le journal et la doc technique. Corrige l'info précédente si tu l'avais ajoutée (le point « FAP à surveiller » est retiré)."
   }
  ]
 }

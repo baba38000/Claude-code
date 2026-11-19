@@ -142,10 +142,21 @@ test('ajout vidange 15 000 km : met à jour un plan existant', () => {
   assert.strictEqual(C.itemStatus(s, vid, C.parseDate('2026-11-19')).dueKm, 204200);
 });
 
-test('ajout FAP : journal + défaut + doc', () => {
+test('ajout FAP préventif : corrige l\'ajout précédent', () => {
   const s = JSON.parse(JSON.stringify(require('../demarrage-vel-satis.json').state));
-  const n = C.mergeData(s, require('../ajouts/fap-2026-09.json').add);
-  assert.strictEqual(n, 3);
-  const st = C.itemStatus(s, s.plan.find((i) => i.id === 'diag-fap'), C.parseDate('2026-11-19'));
-  assert.strictEqual(C.toISO(st.dueDate), '2027-09-15');
+  // état après l'ancien ajout (FAP « débouché »)
+  s.logs.push({ id: 'l-fap-2026-09', date: '2026-09-15', title: 'Décolmatage du FAP', itemIds: ['diag-fap'] });
+  s.issues.push({ id: 'iss-fap-cause', status: 'open', title: 'Surveiller' });
+  const add = require('../ajouts/fap-2026-09-preventif.json').add;
+  C.mergeData(s, add);
+  const log = s.logs.filter((l) => l.id === 'l-fap-2026-09');
+  assert.strictEqual(log.length, 1);
+  assert.match(log[0].title, /préventif/);
+  assert.deepStrictEqual(log[0].itemIds, []);
+  assert.ok(!s.issues.some((i) => i.id === 'iss-fap-cause'));
+  assert.strictEqual(s.tech.filter((r) => r.id === 't-hist-fap').length, 1);
+  // sur des données neuves aussi
+  const s2 = JSON.parse(JSON.stringify(require('../demarrage-vel-satis.json').state));
+  C.mergeData(s2, add);
+  assert.strictEqual(s2.logs.filter((l) => l.id === 'l-fap-2026-09').length, 1);
 });

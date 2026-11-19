@@ -488,6 +488,19 @@
       const ids = new Set(state[key].map((x) => x.id));
       for (const x of add[key] || []) if (!ids.has(x.id)) { state[key].push(x); n++; }
     }
+    for (const [key, items] of Object.entries(add.upsert || {})) {
+      state[key] = state[key] || [];
+      for (const x of items) {
+        const i = state[key].findIndex((y) => y.id === x.id);
+        if (i >= 0) state[key][i] = Object.assign({}, state[key][i], x); else state[key].push(x);
+        n++;
+      }
+    }
+    for (const [key, ids] of Object.entries(add.remove || {})) {
+      const before = (state[key] || []).length;
+      state[key] = (state[key] || []).filter((y) => !ids.includes(y.id));
+      n += before - state[key].length;
+    }
     state.plan = state.plan || [];
     for (const it of add.planItems || []) if (!state.plan.some((p) => p.id === it.id)) { state.plan.push(Object.assign({ enabled: true, custom: true }, it)); n++; }
     for (const [pid, upd] of Object.entries(add.planUpdates || {})) {
